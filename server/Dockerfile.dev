@@ -1,0 +1,12 @@
+FROM golang:1.24-alpine
+
+WORKDIR /server
+
+RUN go install github.com/air-verse/air@latest
+
+COPY go.mod go.sum .air.toml ./
+RUN go mod download
+
+EXPOSE 8090
+
+ENTRYPOINT ["air", "-c", ".air.toml"]
