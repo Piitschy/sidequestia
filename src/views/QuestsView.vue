@@ -9,7 +9,7 @@ const { quests } = useQuests();
 
 <template>
   <h1 class="text-3xl text-center mb-3">Quests</h1>
-  <div class="flex flex-col gap-2" v-for="quest in quests" :key="quest.id">
+  <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2" v-for="quest in quests" :key="quest.id">
     <QuestCard v-bind="quest"/>
   </div>
 </template>

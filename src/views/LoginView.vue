@@ -34,7 +34,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col h-dvw justify-center items-center">
+  <div class="full-size flex flex-col justify-center items-center">
     <div class="flex flex-col w-full max-w-sm gap-3">
       <h1 class="text-2xl font-bold">Login</h1>
       <input ref="mail-input" v-model="email" @keyup.enter="submit" type="email" placeholder="E-Mail"
@@ -45,3 +45,9 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.full-size {
+  height: calc(100vh - 4rem);
+}
+</style>
