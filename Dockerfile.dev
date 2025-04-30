@@ -1,0 +1,14 @@
+FROM oven/bun:latest
+ENV NODE_ENV=development
+WORKDIR /app
+
+COPY --link package.json ./
+COPY --link bun.lock ./
+
+RUN bun install
+
+COPY . .
+
+EXPOSE 5173
+
+ENTRYPOINT ["bun", "run", "dev", "--host", "0.0.0.0"]

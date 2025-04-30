@@ -1,0 +1,13 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+ themes: retro --default, synthwave --prefersdark;
+}
+
+#app {
+  max-width: 100%;
+  max-height: 100vh;
+  padding: 0.5rem;
+  font-weight: normal;
+  background-color: var(--color-base-100);
+}
+
