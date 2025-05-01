@@ -1,0 +1,8 @@
+pb_data
+./pb_data
+./pb_data/*
+./dev 
+./.env
+./tmp
+./tmp/*
+
