@@ -28,3 +28,4 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+server/pb_data/data.db-wal
