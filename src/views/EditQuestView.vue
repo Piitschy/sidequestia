@@ -2,6 +2,7 @@
 import QuestEditor from '@/components/QuestEditor.vue';
 import { usePocketbase } from '@/composables/usePocketbase';
 import { useQuests, type Quest } from '@/composables/useQuests';
+import { ToastType, useToasterStore } from '@/stores/toaster';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -14,6 +15,7 @@ const quest = ref<Quest | null>(null);
 const { pb } = usePocketbase();
 const { update, getQuest } = useQuests();
 const router = useRouter();
+const { notify } = useToasterStore();
 
 const submit = async () => {
   if (!pb.authStore.isValid) {
@@ -32,10 +34,11 @@ const submit = async () => {
     quest.value.seats = 0;
   }
   await update(id, quest.value).then((q) => {
+    notify('Quest updated successfully!', ToastType.success);
     router.push({ name: 'quest', params: { questId: q.id } });
   }).catch((err) => {
     console.error(err);
-    alert('Error updating quest');
+    notify('Error updating quest', ToastType.error);
     return false;
   });
 }

@@ -2,6 +2,7 @@
 import QuestEditor from '@/components/QuestEditor.vue';
 import { usePocketbase } from '@/composables/usePocketbase';
 import { useQuests, type Quest } from '@/composables/useQuests';
+import { ToastType, useToasterStore } from '@/stores/toaster';
 import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -18,6 +19,7 @@ const newQuest = reactive<Partial<Quest>>(
 const { pb } = usePocketbase();
 const { create } = useQuests();
 const router = useRouter();
+const {notify} = useToasterStore();
 
 const submit = async () => {
   if (!newQuest.title || !newQuest.description || !newQuest.questpoints) {
@@ -25,10 +27,11 @@ const submit = async () => {
     return;
   }
   await create({...newQuest, creator: pb.authStore.record?.id, status: 'active'}).then((q) => {
+    notify('Quest created successfully!', ToastType.success);
     router.push({ name: 'quest', params: { questId: q.id } });
   }).catch((err) => {
     console.error(err);
-    alert('Error creating quest');
+    notify('Error creating quest', ToastType.error);
     return false;
   });
 }

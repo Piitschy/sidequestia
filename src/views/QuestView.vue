@@ -3,6 +3,7 @@ import TransistionExpand from '@/components/TransistionExpand.vue';
 import { usePocketbase } from '@/composables/usePocketbase';
 import { useQuests, type Quest } from '@/composables/useQuests';
 import { useUsers } from '@/composables/useUsers';
+import { ToastType, useToasterStore } from '@/stores/toaster';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -15,7 +16,7 @@ const { questId: id } = defineProps({
 
 const router = useRouter();
 const { getQuest, accept, quit, done, remove, complete } = useQuests();
-const { users } = useUsers();
+const { users, getUserById } = useUsers();
 const { pb } = usePocketbase();
 const quest = ref<Quest>()
 
@@ -36,24 +37,30 @@ const creator = computed(() => {
   return users.value.find((user) => user.id === creatorId);
 });
 
+const { notify } = useToasterStore();
 const action = async (action: 'accept' | 'quit' | 'done' | 'remove' | 'complete') => {
   if (!quest.value) return;
   const questId = quest.value.id;
   switch (action) {
     case 'accept':
       await accept(questId);
+      notify('You have accepted this quest!', ToastType.success);
       break;
     case 'quit':
       await quit(questId);
+      notify('You have quit this quest!', ToastType.error);
       break;
     case 'done':
       await done(questId);
+      notify('You have marked this quest as done!', ToastType.success);
       break;
     case 'complete':
       await complete(questId);
+      notify('You have marked this quest as completed!', ToastType.success);
       break;
     case 'remove':
       await remove(questId);
+      notify('You have removed this quest!', ToastType.error);
       router.push({ name: 'quests' });
       break;
   }
@@ -111,6 +118,21 @@ onMounted(async () => {
         <button v-if="quest.status == 'active'" class="btn btn-error w-full"
           @click="action('remove')">DELETE THIS QUEST FOR EVER!!!</button>
       </TransistionExpand>
+      <div v-if="(quest.subscriptions || []).length > 0" >
+        <div class="divider">Adventurers</div>
+        <p class="text-center text-sm opacity-60">You can see all adventurer to this quest here.</p>
+      </div>
+      <div v-for="subscription in quest.subscriptions" :key="subscription.id" class="flex flex-col
+          gap-2">
+          <div class="mx-auto max-w-[200px] w-full flex justify-between items-center">
+            <div class="text-sm text-center">
+              {{ getUserById(subscription.user)?.name }}
+            </div>
+            <div class="">
+              {{ subscription.status }}
+            </div>
+          </div>
+      </div>
     </div>
     <TransistionExpand>
       <div v-if="quest.status == 'completed'" class="alert alert-success shadow-xl text-center flex justify-center">
@@ -134,7 +156,7 @@ onMounted(async () => {
     </TransistionExpand>
     <TransistionExpand>
       <button v-if="!iSubscribed && quest.status == 'active'" class="btn btn-success w-full"
-        :disabled="timesDone >= (quest?.seats || 9999) || timesPending > 0 || iSubscribed"
+        :disabled="timesDone >= (quest?.seats || 9999) || iSubscribed"
         @click="action('accept')">ACCEPT <span v-if="iAmCreator">your own quest</span></button>
     </TransistionExpand>
   </div>

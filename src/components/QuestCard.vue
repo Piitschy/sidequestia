@@ -2,11 +2,13 @@
 import { usePocketbase } from '@/composables/usePocketbase';
 import { useQuests, type Quest } from '@/composables/useQuests';
 import { useUsers } from '@/composables/useUsers';
+import { ToastType, useToasterStore } from '@/stores/toaster';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 const { pb } = usePocketbase();
 const { accept } = useQuests();
+const { notify } = useToasterStore();
 
 const { id, subscriptions, seats } = defineProps<Quest>();
 const { getUserById } = useUsers();
@@ -17,6 +19,11 @@ const iSubscribed = computed(() => subscriptions?.some((s) => s.user == pb.authS
 const iHaveDone = computed(() => subscriptions?.some((s) => s.status == 'done' && s.user == pb.authStore.record?.id) ?? false);
 const success = computed(() => seats ? timesDone.value >= seats : false);
 
+const acceptQuest = async () => {
+  if (!id) return;
+  await accept(id);
+  notify('You have accepted this quest!', ToastType.success);
+};
 
 const router = useRouter();
 const goToQuest = () => {
@@ -42,7 +49,7 @@ const goToQuest = () => {
         <div class="text-sm italic">started by {{ timesPending }}</div>
         <button class="btn btn-success"
           :class="{ 'btn-disabled': timesDone >= $props.seats || timesPending > 0 || iSubscribed, }"
-          @click="accept(id)">{{ iSubscribed ? 'ACCEPTED' : 'ACCEPT' }}</button>
+          @click="acceptQuest">{{ iSubscribed ? 'ACCEPTED' : 'ACCEPT' }}</button>
       </div>
       <div v-if="iHaveDone || success" class="w-full bg-success flex justify-center items-center rounded-md">
         <div class="text-lg cursor-pointer text-success-content" @click="goToQuest">
