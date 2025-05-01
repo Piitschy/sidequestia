@@ -28,7 +28,7 @@ const sortedUsers = computed(() => {
       </thead>
       <tbody>
         <tr v-for="user in sortedUsers" :key="user.id">
-          <td :class="{'underline': pb.authStore.record.id == user.id }">{{ user.name }}</td>
+          <td :class="{'underline': pb.authStore.record?.id == user.id }">{{ user.name }}</td>
           <td>{{ user.questpoints }}</td>
         </tr>
       </tbody>

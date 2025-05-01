@@ -15,7 +15,7 @@ const { logout } = usePocketbase();
     </button>
   </div>
   <div class="flex-1">
-      <a class="btn btn-ghost text-xl">{{titlecase($route.name)}}</a>
+      <a class="btn btn-ghost text-xl">{{titlecase($route.name?.toString() || 'SideQuestia')}}</a>
   </div>
   <div class="flex-none">
     <button class="btn btn-square btn-ghost" popovertarget="popover-1" style="anchor-name:--anchor-1">
