@@ -7,7 +7,9 @@ const { quests } = useQuests();
 </script>
 
 <template>
-  <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4" v-for="quest in quests" :key="quest.id">
-    <QuestCard class="my-2" v-bind="quest"/>
+  <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
+    <div v-for="quest in quests" :key="quest.id">
+      <QuestCard v-bind="quest"/>
+    </div>
   </div>
 </template>

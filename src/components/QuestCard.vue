@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import { usePocketbase } from '@/composables/usePocketbase';
-import { useQuests, type Quest } from '@/composables/useQuests';
+import { type Quest } from '@/composables/useQuests';
 import { useUsers } from '@/composables/useUsers';
-import { ToastType, useToasterStore } from '@/stores/toaster';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 const { pb } = usePocketbase();
-const { accept } = useQuests();
-const { notify } = useToasterStore();
-
 const { id, subscriptions, seats } = defineProps<Quest>();
 const { getUserById } = useUsers();
 
@@ -19,12 +15,6 @@ const iSubscribed = computed(() => subscriptions?.some((s) => s.user == pb.authS
 const iHaveDone = computed(() => subscriptions?.some((s) => s.status == 'done' && s.user == pb.authStore.record?.id) ?? false);
 const success = computed(() => seats ? timesDone.value >= seats : false);
 
-const acceptQuest = async () => {
-  if (!id) return;
-  await accept(id);
-  notify('You have accepted this quest!', ToastType.success);
-};
-
 const router = useRouter();
 const goToQuest = () => {
   router.push({ name: 'quest', params: { questId: id } });
@@ -32,9 +22,10 @@ const goToQuest = () => {
 </script>
 
 <template>
-  <div class="card bg-base-100 shadow-md" :class="{ 'opacity-65': $props.status == 'completed' }">
+  <div class="relative card bg-base-100 shadow-md cursor-pointer" :class="{ 'opacity-65': $props.status ==
+    'completed', 'border border-success': iSubscribed}" @click="goToQuest">
     <div class="card-body">
-      <div class="flex justify-between items-center cursor-pointer" @click="goToQuest">
+      <div class="flex justify-between items-center">
         <div>
           <h2 v-if="$props.title" class="card-title items-baseline"> {{ $props.title }} </h2>
           <span v-if="$props.status != 'active'" class="text-sm italic">closed</span>
@@ -44,17 +35,21 @@ const goToQuest = () => {
         </div>
         <h3 class="card-title whitespace-nowrap">{{ $props.questpoints }} SQP</h3>
       </div>
-      <div v-if="!success && !iHaveDone" class="card-actions justify-between items-baseline">
-        <div class="text-lg cursor-pointer" @click="goToQuest">{{ timesDone }}/{{ $props.seats || '&infin;' }}</div>
-        <div class="text-sm italic">started by {{ timesPending }}</div>
-        <button class="btn btn-success"
-          :disabled="timesDone >= ($props.seats || 9999) || iSubscribed"
-          @click="acceptQuest">{{ iSubscribed ? 'ACCEPTED' : 'ACCEPT' }}</button>
+      <div v-if="!success && !iHaveDone" class="card-actions justify-between items-center text-lg">
+        <div>{{ timesPending }} {{timesPending == 1 ? 'adventurer' : 'adventurers'}}</div>
+        <div>{{ timesDone }}/{{ $props.seats || '&infin;' }}</div>
       </div>
       <div v-if="iHaveDone || success" class="w-full bg-success flex justify-center items-center rounded-md">
-        <div class="text-lg cursor-pointer text-success-content" @click="goToQuest">
+        <div class="text-lg text-success-content">
           {{ timesDone }}/{{ $props.seats || '&infin;' }}
         </div>
+      </div>
+    </div>
+    <div v-if="iSubscribed" class="absolute top-0 left-1/2 -translate-y-[4px] -translate-x-1/2">
+      <div class="badge badge-success badge-outline badge-sm rounded-t-none border-t-0">
+        <span v-if="iHaveDone">you have done this</span>
+        <span v-else-if="success">completed</span>
+        <span v-else>accepted</span>
       </div>
     </div>
   </div>
