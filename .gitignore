@@ -30,3 +30,4 @@ coverage
 *.tsbuildinfo
 server/pb_data/data.db-wal
 *.db
+.env

@@ -1,6 +1,6 @@
 import PocketBase from 'pocketbase';
 
-const pb = new PocketBase('http://localhost:8090');
+const pb = new PocketBase(import.meta.env.VITE_API_URL);
 pb.autoCancellation(false);
 
 export const usePocketbase = () => {
