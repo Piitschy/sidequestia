@@ -23,7 +23,7 @@ const goToQuest = () => {
 </script>
 
 <template>
-  <div class="card bg-base-200 shadow-sm" :class="{ 'opacity-65': success }">
+  <div class="card bg-base-100 shadow-md" :class="{ 'opacity-65': success }">
     <div class="card-body">
       <div class="flex justify-between items-center cursor-pointer" @click="goToQuest">
         <div>

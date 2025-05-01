@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { RouterView, useRouter } from 'vue-router'
 import AppDock from '@/components/AppDock.vue';
 import AppToasterDisplay from '@/components/AppToasterDisplay.vue';
 import { usePocketbase } from '@/composables/usePocketbase';
@@ -20,7 +20,7 @@ onMounted(() => {
   <header>
   </header>
   <AppToasterDisplay />
-  <main>
+  <main class="flex flex-col h-dvh">
     <RouterView />
   </main>
   <AppDock />

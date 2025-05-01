@@ -27,12 +27,13 @@ const completedQuests = computed(() => {
   return myQuests.value?.filter((q) => q.status === 'done');
 });
 
-function getUserById(id: string) {
+function getUserById(id?: string) {
+  if (!id) return;
   return users.value.find((user) => user.id === id);
 }
 
-async function action(action: 'quit' | 'done', id: string) {
-  if (!subs.value) return;
+async function action(action: 'quit' | 'done', id?: string) {
+  if (!subs.value || !id) return;
   const questId = id;
   switch (action) {
     case 'quit':
@@ -46,7 +47,8 @@ async function action(action: 'quit' | 'done', id: string) {
 }
 
 const router = useRouter();
-const goToQuest = (questId: string) => {
+const goToQuest = (questId?: string) => {
+  if (!questId) return;
   router.push({ name: 'quest', params: { questId } });
 };
 

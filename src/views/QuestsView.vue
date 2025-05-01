@@ -2,7 +2,6 @@
 import QuestCard from '@/components/QuestCard.vue';
 import { useQuests } from '@/composables/useQuests';
 
-
 const { quests } = useQuests();
 
 </script>

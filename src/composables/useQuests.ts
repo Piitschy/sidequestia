@@ -127,7 +127,7 @@ export const useQuests = () => {
   }
 
   return {
-    quests: readonly(quests),
+    quests,
     pull,
     create,
     accept,

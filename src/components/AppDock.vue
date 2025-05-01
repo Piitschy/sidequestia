@@ -8,10 +8,10 @@ const titlecase = (str?: string) => {
 </script>
 
 <template>
-  <div class="dock bg-base-200">
+  <div class="dock bg-neutral text-neutral-content">
     <RouterLink v-for="route in $router.options.routes.filter(r => r.meta?.dock)" :key="route.path" :to="route.path"
       :class="{'dock-active':route.name == $route.name}">
-      <Icon v-if="route.meta?.icon" :icon="route.meta.icon" width="24"/>
+      <Icon v-if="route.meta?.icon" :icon="route.meta.icon as string" width="24"/>
       <span class="dock-label">{{titlecase(route.name?.toString())}}</span>
     </RouterLink>
   </div>
