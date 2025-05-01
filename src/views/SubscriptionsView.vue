@@ -72,9 +72,6 @@ onMounted(async () => {
         <button class="btn btn-square btn-ghost" @click="action('done',quest?.id)">
           <Icon icon="ic:baseline-check" class="text-success" width="24" />
         </button>
-        <button class="btn btn-square btn-ghost" @click="action('quit',quest?.id)">
-          <Icon icon="ic:baseline-close" class="text-error" width="24" />
-        </button>
       </li>
       <li v-if="(completedQuests?.length || 0) > 0" class="p-4 pb-2 text-xs opacity-60 tracking-wide">Your completed quests:</li>
       <li class="list-row opacity-60" v-for="quest in completedQuests" :key="quest?.id" @click="goToQuest(quest?.id)">

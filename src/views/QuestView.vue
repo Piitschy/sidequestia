@@ -73,9 +73,10 @@ onMounted(async () => {
       <h2 class="text-center">
         <span v-if="creator" class="text-sm italic ">by {{ creator?.name }}</span>
       </h2>
+      <div class="text-xs text-center mx-auto">{{quest.created.slice(0,16)}}</div>
     </div>
     <div class="my-5" v-html="quest?.description" />
-    <div class="stats text-center shadow w-full bg-base-200">
+    <div class="stats text-center shadow w-full bg-base-100">
       <div class="stat">
         <div class="stat-title">SQ-Points</div>
         <div class="stat-value relative">
@@ -86,7 +87,7 @@ onMounted(async () => {
       <div class="stat">
         <div class="stat-title">Completed</div>
           <div class="stat-value relative">
-            {{ timesDone }}/{{ quest.seats }}
+            {{ timesDone }}/{{ quest.seats || '&infin;' }}
             <!-- <Icon class="absolute top-0 -right-3 animate-pulse" width="24" icon="ic:baseline-edit"/> -->
           </div>
       </div>
@@ -113,14 +114,13 @@ onMounted(async () => {
     </div>
     <TransistionExpand>
       <div v-if="quest.status == 'completed'" class="alert alert-success shadow-xl text-center flex justify-center">
-        <span class="text-lg">This quest is completed by creator!</span>
+          <span class="text-lg text-pretty">This quest has been marked as completed by the creator!</span>
       </div>
       <div v-else-if="iHaveDone  && quest.status == 'active'" class="alert alert-success shadow-xl
           text-center flex flex-col justify-center">
         <span class="text-lg">You have completed this quest!</span>
         <TransistionExpand>
-          <span v-if="completed" class="text-base">When the create mark this quest as done, you will
-              get your well deserved SideQuestPoints :)</span>
+          <span v-if="completed" class="text-base">As soon as the creator marks this quest as completed, you will receive your well-deserved SideQuestPoints :)</span>
         </TransistionExpand>
       </div>
       <p v-else-if="iSubscribed" class="text-center">You have accepted this quest!</p>
@@ -133,9 +133,9 @@ onMounted(async () => {
         @click="action('quit')">{{iHaveDone?'REVOKE MY COMPLETION':'QUIT'}}</button>
     </TransistionExpand>
     <TransistionExpand>
-      <button v-if="!iSubscribed && quest.status == 'active'" class="btn btn-success w-full" :class="{
-        'btn-disabled': timesDone >= (quest?.seats || 0) || timesPending > 0 || iSubscribed,
-      }" @click="action('accept')">ACCEPT <span v-if="iAmCreator">your own quest</span></button>
+      <button v-if="!iSubscribed && quest.status == 'active'" class="btn btn-success w-full"
+        :disabled="timesDone >= (quest?.seats || 9999) || timesPending > 0 || iSubscribed"
+        @click="action('accept')">ACCEPT <span v-if="iAmCreator">your own quest</span></button>
     </TransistionExpand>
   </div>
   </TransistionExpand>

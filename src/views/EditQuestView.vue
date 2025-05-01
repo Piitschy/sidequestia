@@ -24,9 +24,12 @@ const submit = async () => {
     alert('Quest not found');
     return;
   }
-  if (!quest.value.title || !quest.value.description || !quest.value.questpoints || !quest.value.seats) {
+  if (!quest.value.title || !quest.value.description || !quest.value.questpoints) {
     alert('Please fill in all fields');
     return;
+  }
+  if (!quest.value.seats) {
+    quest.value.seats = 0;
   }
   await update(id, quest.value).then((q) => {
     router.push({ name: 'quest', params: { questId: q.id } });

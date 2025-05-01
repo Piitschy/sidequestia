@@ -83,7 +83,7 @@ func AcceptQuestHandler(e *core.RequestEvent) error {
 	}
 
 	// Check if the user is already subscribed to the quest
-	err = e.App.DB().NewQuery("SELECT * FROM quest_subscriptions WHERE quest = :quest AND user = :user").Bind(dbx.Params{
+	err = e.App.DB().NewQuery("SELECT * FROM quest_subscriptions WHERE quest = {:quest} AND user = {:user}").Bind(dbx.Params{
 		"quest": quest.Id,
 		"user":  e.Auth.Id,
 	}).One(&core.Record{})
@@ -102,12 +102,6 @@ func AcceptQuestHandler(e *core.RequestEvent) error {
 	err = e.App.Save(sub)
 	if err != nil {
 		return e.BadRequestError("Failed to save quest subscription", err)
-	}
-
-	quest.Set("times_done", quest.GetInt("times_done")+1)
-	err = e.App.Save(quest)
-	if err != nil {
-		return e.BadRequestError("Failed to update quest", err)
 	}
 
 	// Return a success response

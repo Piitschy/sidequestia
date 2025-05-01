@@ -1,9 +1,17 @@
 <script lang="ts" setup>
+import { watchEffect } from 'vue';
+
 
 const title = defineModel<string>('title');
 const description = defineModel<string>('description');
 const questpoints = defineModel<number>('questpoints');
-const seats = defineModel<number>('seats');
+const seats = defineModel<number|undefined>('seats');
+
+watchEffect(() => {
+  if (seats.value == 0) {
+    seats.value = undefined;
+  }
+});
 
 defineProps<{
   submitText?: string;
@@ -17,7 +25,7 @@ defineEmits(['submit']);
     <input v-model="title" type="text" placeholder="Title" class="input w-full" />
     <textarea v-model="description" class="textarea w-full" placeholder="Description"></textarea>
     <input v-model="questpoints" type="number" class="input validator w-full" required placeholder="Side Quest Points" min="1" title="Must be greater than 1" />
-    <input v-model="seats" type="number" class="input validator w-full" required placeholder="How many people can complete this quest?" min="1" title="Must be greater than 1" />
+    <input v-model="seats" type="number" class="input validator w-full" required placeholder="How many people can complete this quest? (opt.)" min="1" title="Must be greater than 1" />
     <button v-if="submitText" class="btn btn-success w-full"
       @click="$emit('submit')">{{$props.submitText}}</button>
   </div>

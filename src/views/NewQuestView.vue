@@ -20,7 +20,7 @@ const { create } = useQuests();
 const router = useRouter();
 
 const submit = async () => {
-  if (!newQuest.title || !newQuest.description || !newQuest.questpoints || !newQuest.seats) {
+  if (!newQuest.title || !newQuest.description || !newQuest.questpoints) {
     alert('Please fill in all fields');
     return;
   }
