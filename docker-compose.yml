@@ -22,7 +22,6 @@ services:
 
   vue:
     image: ${IMGAGE_REPO}/vue:latest
-    container_name: nuxt
     depends_on:
       - pocketbase
     environment:
@@ -39,9 +38,8 @@ services:
         - "traefik.http.routers.${STACKNAME}-vue.tls.certresolver=letsencrypt"
         - "traefik.http.services.${STACKNAME}-vue.loadbalancer.server.port=80"
 
-  nuxt-staging:
+  vue-staging:
     image: ${IMGAGE_REPO}/vue:${STAGE_TAG:-stage}
-    container_name: nuxt
     depends_on:
       - pocketbase
     environment:
@@ -56,7 +54,7 @@ services:
         - "traefik.http.routers.${STACKNAME}-vue-staging.entrypoints=web,websecure"
         - "traefik.http.routers.${STACKNAME}-vue-staging.tls=true"
         - "traefik.http.routers.${STACKNAME}-vue-staging.tls.certresolver=letsencrypt"
-        - "traefik.http.services.${STACKNAME}-nuxt-staging.loadbalancer.server.port=80"
+        - "traefik.http.services.${STACKNAME}-vue-staging.loadbalancer.server.port=80"
 
 volumes:
   database:
