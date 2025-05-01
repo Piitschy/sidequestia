@@ -9,8 +9,8 @@ RUN go build -o ./pocketbase ./main.go
 
 FROM alpine:latest AS production
 COPY ./pb_migrations /pb/pb_migrations
-COPY ./pb_hooks /pb/pb_hooks
-COPY ./pb_public/ /pb/pb_public
+# COPY ./pb_hooks /pb/pb_hooks
+# COPY ./pb_public/ /pb/pb_public
 COPY --from=build /app/pocketbase /pb/pocketbase
 
 EXPOSE 8080
