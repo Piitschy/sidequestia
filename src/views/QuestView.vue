@@ -4,7 +4,6 @@ import { usePocketbase } from '@/composables/usePocketbase';
 import { useQuests, type Quest } from '@/composables/useQuests';
 import { useUsers } from '@/composables/useUsers';
 import { computed, onMounted, ref } from 'vue';
-import { Icon } from '@iconify/vue';
 import { useRouter } from 'vue-router';
 
 const { questId: id } = defineProps({
@@ -97,14 +96,21 @@ onMounted(async () => {
       </div>
     </div>
 
-    <TransistionExpand>
-      <button v-if="iAmCreator && quest.status == 'active'" class="btn w-full"
-          @click="$router.push({name: 'edit quest', params: { questId:id }})">EDIT</button>
-    </TransistionExpand>
-    <TransistionExpand>
-      <button v-if="iAmCreator && quest.status == 'active'" class="btn btn-success w-full" :disabled="!completed"
-        @click="action('complete')">MARK AS COMPLETED</button>
-    </TransistionExpand>
+    <div v-if="iAmCreator" class="flex flex-col gap-3 my-5 bg-base-300 p-3 rounded-lg">
+      <h2 class="text-center text-lg">You are the creator of this quest!</h2>
+      <TransistionExpand>
+        <button v-if="quest.status == 'active'" class="btn w-full"
+            @click="$router.push({name: 'edit quest', params: { questId:id }})">EDIT</button>
+      </TransistionExpand>
+      <TransistionExpand>
+        <button v-if="quest.status == 'active'" class="btn btn-success w-full" :disabled="!completed"
+          @click="action('complete')">MARK AS COMPLETED</button>
+      </TransistionExpand>
+      <TransistionExpand>
+        <button v-if="quest.status == 'active'" class="btn btn-error w-full"
+          @click="action('remove')">DELETE THIS QUEST FOR EVER!!!</button>
+      </TransistionExpand>
+    </div>
     <TransistionExpand>
       <div v-if="completed && (!iAmCreator || quest.status == 'completed')" class="alert alert-success shadow-xl text-center flex justify-center">
         <span class="text-lg">This quest is completed!</span>
@@ -125,10 +131,6 @@ onMounted(async () => {
       <button v-if="!iSubscribed && quest.status == 'active'" class="btn btn-success w-full" :class="{
         'btn-disabled': timesDone >= (quest?.seats || 0) || timesPending > 0 || iSubscribed,
       }" @click="action('accept')">ACCEPT <span v-if="iAmCreator">your own quest</span></button>
-    </TransistionExpand>
-    <TransistionExpand>
-      <button v-if="iAmCreator && quest.status == 'active'" class="btn btn-error w-full"
-        @click="action('remove')">DELETE THIS QUEST FOR EVER!!!</button>
     </TransistionExpand>
   </div>
   </TransistionExpand>
