@@ -71,7 +71,7 @@ onMounted(async () => {
     <div>
       <h1 class="text-3xl text-center">{{ quest?.title }}</h1>
       <h2 class="text-center">
-        <span v-if="creator" class="text-sm italic ">Created by {{ creator?.name }}</span>
+        <span v-if="creator" class="text-sm italic ">by {{ creator?.name }}</span>
       </h2>
     </div>
     <div class="my-5" v-html="quest?.description" />
@@ -103,7 +103,7 @@ onMounted(async () => {
             @click="$router.push({name: 'edit quest', params: { questId:id }})">EDIT</button>
       </TransistionExpand>
       <TransistionExpand>
-        <button v-if="quest.status == 'active'" class="btn btn-success w-full" :disabled="!completed"
+        <button v-if="quest.status == 'active'" class="btn btn-success w-full" :disabled="timesDone < 1"
           @click="action('complete')">MARK AS COMPLETED</button>
       </TransistionExpand>
       <TransistionExpand>
@@ -112,13 +112,18 @@ onMounted(async () => {
       </TransistionExpand>
     </div>
     <TransistionExpand>
-      <div v-if="completed && (!iAmCreator || quest.status == 'completed')" class="alert alert-success shadow-xl text-center flex justify-center">
-        <span class="text-lg">This quest is completed!</span>
+      <div v-if="quest.status == 'completed'" class="alert alert-success shadow-xl text-center flex justify-center">
+        <span class="text-lg">This quest is completed by creator!</span>
       </div>
-      <div v-else-if="iHaveDone  && quest.status == 'active'" class="alert alert-success shadow-xl text-center flex justify-center">
+      <div v-else-if="iHaveDone  && quest.status == 'active'" class="alert alert-success shadow-xl
+          text-center flex flex-col justify-center">
         <span class="text-lg">You have completed this quest!</span>
+        <TransistionExpand>
+          <span v-if="completed" class="text-base">When the create mark this quest as done, you will
+              get your well deserved SideQuestPoints :)</span>
+        </TransistionExpand>
       </div>
-      <p v-else-if="iSubscribed" class="text-center"> You have accepted this quest!</p>
+      <p v-else-if="iSubscribed" class="text-center">You have accepted this quest!</p>
     </TransistionExpand>
     <TransistionExpand>
     <button v-if="iSubscribed && !iHaveDone && quest.status == 'active'" class="btn btn-success w-full min-h-16 text-xl" @click="action('done')">I've done this!</button>

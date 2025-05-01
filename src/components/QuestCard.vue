@@ -5,10 +5,10 @@ import { useUsers } from '@/composables/useUsers';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
-const {pb} = usePocketbase();
-const {accept} = useQuests();
+const { pb } = usePocketbase();
+const { accept } = useQuests();
 
-const {id, subscriptions, seats} = defineProps<Quest>();
+const { id, subscriptions, seats } = defineProps<Quest>();
 const { getUserById } = useUsers();
 
 const timesDone = computed(() => subscriptions?.filter((s) => s.status == 'done').length ?? 0);
@@ -20,33 +20,32 @@ const success = computed(() => timesDone.value >= seats);
 
 const router = useRouter();
 const goToQuest = () => {
-  router.push({ name: 'quest', params: { questId:id } });
+  router.push({ name: 'quest', params: { questId: id } });
 };
 </script>
 
 <template>
-  <div class="card bg-base-100 shadow-md" :class="{ 'opacity-65': success }">
+  <div class="card bg-base-100 shadow-md" :class="{ 'opacity-65': $props.status == 'completed' }">
     <div class="card-body">
       <div class="flex justify-between items-center cursor-pointer" @click="goToQuest">
         <div>
-          <h2 v-if="$props.title" class="card-title items-baseline">
-            {{ $props.title }}
-            <span v-if="$props.creator" class="text-sm italic opacity-60">
-              by {{getUserById($props.creator)?.name}}
-            </span>
-          </h2>
-          <div class="text-sm italic">{{ timesPending }} {{ timesPending == 1 ? 'time' : 'times' }} accepted</div>
+          <h2 v-if="$props.title" class="card-title items-baseline"> {{ $props.title }} </h2>
+          <span v-if="$props.creator" class="text-sm italic opacity-60">
+            by {{ getUserById($props.creator)?.name }}
+          </span>
         </div>
         <h3 class="card-title">{{ $props.questpoints }} SQP</h3>
       </div>
-      <div v-if="!success && !iHaveDone" class="card-actions justify-between items-center">
+      <div v-if="!success && !iHaveDone" class="card-actions justify-between items-baseline">
         <div class="text-lg cursor-pointer" @click="goToQuest">{{ timesDone }}/{{ $props.seats }}</div>
-        <button class="btn btn-success" :class="{
-          'btn-disabled': timesDone >= $props.seats || timesPending > 0 || iSubscribed,
-        }" @click="accept(id)">{{iSubscribed?'ACCEPTED':'ACCEPT'}}</button>
+        <div class="text-sm italic">started by {{ timesPending }}</div>
+        <button class="btn btn-success"
+          :class="{ 'btn-disabled': timesDone >= $props.seats || timesPending > 0 || iSubscribed, }"
+          @click="accept(id)">{{ iSubscribed ? 'ACCEPTED' : 'ACCEPT' }}</button>
       </div>
       <div v-if="iHaveDone" class="w-full bg-success flex justify-center items-center rounded-md">
-        <div class="text-lg cursor-pointer text-success-content" @click="goToQuest">{{ timesDone }}/{{ $props.seats }}</div>
+        <div class="text-lg cursor-pointer text-success-content" @click="goToQuest">{{ timesDone }}/{{ $props.seats }}
+        </div>
       </div>
     </div>
   </div>
