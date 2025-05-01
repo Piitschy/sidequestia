@@ -48,7 +48,7 @@ const goToQuest = () => {
         <div class="text-lg cursor-pointer" @click="goToQuest">{{ timesDone }}/{{ $props.seats || '&infin;' }}</div>
         <div class="text-sm italic">started by {{ timesPending }}</div>
         <button class="btn btn-success"
-          :class="{ 'btn-disabled': timesDone >= $props.seats || timesPending > 0 || iSubscribed, }"
+          :disabled="timesDone >= ($props.seats || 9999) || iSubscribed"
           @click="acceptQuest">{{ iSubscribed ? 'ACCEPTED' : 'ACCEPT' }}</button>
       </div>
       <div v-if="iHaveDone || success" class="w-full bg-success flex justify-center items-center rounded-md">
