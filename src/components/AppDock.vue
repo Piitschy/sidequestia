@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 import { Icon } from '@iconify/vue';
-const titlecase = (str?: string) => {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+import { titlecase } from '@/utils/strings';
 </script>
 
 <template>
   <div class="dock bg-neutral text-neutral-content">
     <RouterLink v-for="route in $router.options.routes.filter(r => r.meta?.dock)" :key="route.path" :to="route.path"
-      :class="{'dock-active':route.name == $route.name}">
+      :class="{'dock-active':route.name == $route.name, 'cursor-default opacity-60':$route.meta?.hideDock}">
       <Icon v-if="route.meta?.icon" :icon="route.meta.icon as string" width="24"/>
       <span class="dock-label">{{titlecase(route.name?.toString())}}</span>
     </RouterLink>

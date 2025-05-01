@@ -4,6 +4,7 @@ import AppDock from '@/components/AppDock.vue';
 import AppToasterDisplay from '@/components/AppToasterDisplay.vue';
 import { usePocketbase } from '@/composables/usePocketbase';
 import { onMounted } from 'vue';
+import AppBar from './components/AppBar.vue';
 
 const {refresh} = usePocketbase();
 const router = useRouter();
@@ -17,11 +18,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <header>
-  </header>
   <AppToasterDisplay />
-  <main class="flex flex-col h-dvh">
+  <header>
+    <AppBar />
+  </header>
+  <main>
     <RouterView />
   </main>
-  <AppDock />
+  <footer>
+    <AppDock />
+  </footer>
 </template>

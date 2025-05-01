@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { usePocketbase } from '@/composables/usePocketbase';
 import { useQuests, type Quest } from '@/composables/useQuests';
+import { useUsers } from '@/composables/useUsers';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -8,6 +9,7 @@ const {pb} = usePocketbase();
 const {accept} = useQuests();
 
 const {id, subscriptions, seats} = defineProps<Quest>();
+const { getUserById } = useUsers();
 
 const timesDone = computed(() => subscriptions?.filter((s) => s.status == 'done').length ?? 0);
 const timesPending = computed(() => subscriptions?.filter((s) => s.status == 'pending').length ?? 0);
@@ -27,7 +29,12 @@ const goToQuest = () => {
     <div class="card-body">
       <div class="flex justify-between items-center cursor-pointer" @click="goToQuest">
         <div>
-          <h2 v-if="$props.title" class="card-title">{{ $props.title }}</h2>
+          <h2 v-if="$props.title" class="card-title items-baseline">
+            {{ $props.title }}
+            <span v-if="$props.creator" class="text-sm italic opacity-60">
+              by {{getUserById($props.creator)?.name}}
+            </span>
+          </h2>
           <div class="text-sm italic">{{ timesPending }} {{ timesPending == 1 ? 'time' : 'times' }} accepted</div>
         </div>
         <h3 class="card-title">{{ $props.questpoints }} SQP</h3>

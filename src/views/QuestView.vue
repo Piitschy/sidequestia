@@ -15,7 +15,7 @@ const { questId: id } = defineProps({
 });
 
 const router = useRouter();
-const { getQuest, accept, quit, done, remove } = useQuests();
+const { getQuest, accept, quit, done, remove, complete } = useQuests();
 const { users } = useUsers();
 const { pb } = usePocketbase();
 const quest = ref<Quest>()
@@ -37,7 +37,7 @@ const creator = computed(() => {
   return users.value.find((user) => user.id === creatorId);
 });
 
-const action = async (action: 'accept' | 'quit' | 'done' | 'remove') => {
+const action = async (action: 'accept' | 'quit' | 'done' | 'remove' | 'complete') => {
   if (!quest.value) return;
   const questId = quest.value.id;
   switch (action) {
@@ -49,6 +49,9 @@ const action = async (action: 'accept' | 'quit' | 'done' | 'remove') => {
       break;
     case 'done':
       await done(questId);
+      break;
+    case 'complete':
+      await complete(questId);
       break;
     case 'remove':
       await remove(questId);
@@ -76,13 +79,17 @@ onMounted(async () => {
     <div class="stats text-center shadow w-full bg-base-200">
       <div class="stat">
         <div class="stat-title">SQ-Points</div>
-        <div class="stat-value relative">{{ quest?.questpoints }}<Icon class="absolute
-            top-0 -right-3 animate-pulse" width="24" icon="ic:baseline-edit"/></div>
+        <div class="stat-value relative">
+          {{ quest?.questpoints }}
+          <!-- <Icon class="absolute top-0 -right-3 animate-pulse" width="24" icon="ic:baseline-edit"/> -->
+        </div>
       </div>
       <div class="stat">
         <div class="stat-title">Completed</div>
-          <div class="stat-value relative">{{ timesDone }}/{{ quest.seats }} <Icon class="absolute
-            top-0 -right-3 animate-pulse" width="24" icon="ic:baseline-edit"/></div>
+          <div class="stat-value relative">
+            {{ timesDone }}/{{ quest.seats }}
+            <!-- <Icon class="absolute top-0 -right-3 animate-pulse" width="24" icon="ic:baseline-edit"/> -->
+          </div>
       </div>
       <div class="stat">
         <div class="stat-title">Started By</div>
@@ -91,28 +98,36 @@ onMounted(async () => {
     </div>
 
     <TransistionExpand>
-      <div v-if="completed" class="alert alert-success shadow-xl text-center flex justify-center">
+      <button v-if="iAmCreator && quest.status == 'active'" class="btn w-full"
+          @click="$router.push({name: 'edit quest', params: { questId:id }})">EDIT</button>
+    </TransistionExpand>
+    <TransistionExpand>
+      <button v-if="iAmCreator && quest.status == 'active'" class="btn btn-success w-full" :disabled="!completed"
+        @click="action('complete')">MARK AS COMPLETED</button>
+    </TransistionExpand>
+    <TransistionExpand>
+      <div v-if="completed && (!iAmCreator || quest.status == 'completed')" class="alert alert-success shadow-xl text-center flex justify-center">
         <span class="text-lg">This quest is completed!</span>
       </div>
-      <div v-else-if="iHaveDone" class="alert alert-success shadow-xl text-center flex justify-center">
+      <div v-else-if="iHaveDone  && quest.status == 'active'" class="alert alert-success shadow-xl text-center flex justify-center">
         <span class="text-lg">You have completed this quest!</span>
       </div>
       <p v-else-if="iSubscribed" class="text-center"> You have accepted this quest!</p>
     </TransistionExpand>
     <TransistionExpand>
-    <button v-if="iSubscribed && !iHaveDone" class="btn btn-success w-full min-h-16 text-xl" @click="action('done')">I've done this!</button>
+    <button v-if="iSubscribed && !iHaveDone && quest.status == 'active'" class="btn btn-success w-full min-h-16 text-xl" @click="action('done')">I've done this!</button>
     </TransistionExpand>
     <TransistionExpand>
-      <button v-if="iSubscribed" class="btn btn-error w-full"
+      <button v-if="iSubscribed && quest.status == 'active'" class="btn btn-error w-full"
         @click="action('quit')">{{iHaveDone?'REVOKE MY COMPLETION':'QUIT'}}</button>
     </TransistionExpand>
     <TransistionExpand>
-      <button v-if="!iSubscribed" class="btn btn-success w-full" :class="{
+      <button v-if="!iSubscribed && quest.status == 'active'" class="btn btn-success w-full" :class="{
         'btn-disabled': timesDone >= (quest?.seats || 0) || timesPending > 0 || iSubscribed,
       }" @click="action('accept')">ACCEPT <span v-if="iAmCreator">your own quest</span></button>
     </TransistionExpand>
     <TransistionExpand>
-      <button v-if="iAmCreator" class="btn btn-error w-full"
+      <button v-if="iAmCreator && quest.status == 'active'" class="btn btn-error w-full"
         @click="action('remove')">DELETE THIS QUEST FOR EVER!!!</button>
     </TransistionExpand>
   </div>

@@ -11,6 +11,7 @@ WORKDIR /app
 COPY --from=lock /tmp/yarn.lock /tmp/package.json ./
 RUN yarn install
 COPY . .
+ENV VITE_API_URL=https://pb.sidequestia.de
 RUN yarn build
 
 FROM nginx:stable-alpine AS production

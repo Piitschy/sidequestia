@@ -25,6 +25,31 @@ func main() {
 		return se.Next()
 	})
 
+	app.OnRecordAfterUpdateSuccess("quests").BindFunc(func(e *core.RecordEvent) error {
+		// Check if the quest is completed
+		if e.Record.GetString("status") != "completed" {
+			return e.Next()
+		}
+		// Give all users who completed the quest points
+
+		// Get all users who completed the quest
+		type UserId struct {
+			Id string `db:"user"`
+		}
+		users := []UserId{}
+		e.App.DB().NewQuery("SELECT user FROM quest_subscriptions WHERE quest = {:quest} AND status = 'done'").Bind(dbx.Params{
+			"quest": e.Record.Id,
+		}).All(&users)
+		for _, user := range users {
+			e.App.DB().NewQuery("UPDATE users SET questpoints = questpoints + {:sqp} WHERE id = {:id}").Bind(dbx.Params{
+				"sqp": e.Record.GetInt("questpoints"),
+				"id":  user.Id,
+			},
+			).Execute()
+		}
+		return e.Next()
+	})
+
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
 	}

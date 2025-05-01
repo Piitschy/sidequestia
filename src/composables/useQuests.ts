@@ -72,6 +72,18 @@ export const useQuests = () => {
     return updatedQuest
   }
 
+  async function complete(id: Quest['id']) {
+    const quest = await questsCollection.getOne(id)
+    if (quest) {
+      quest.status = 'completed'
+      await questsCollection.update(id, quest)
+      const index = quests.value.findIndex((q) => q.id === id)
+      if (index !== -1) {
+        quests.value[index] = quest
+      }
+    }
+  }
+
   async function remove(id: Quest['id']) {
     await questsCollection.delete(id)
     const index = quests.value.findIndex((q) => q.id === id)
@@ -137,5 +149,6 @@ export const useQuests = () => {
     done,
     update,
     remove,
+    complete,
   }
 }

@@ -14,9 +14,11 @@ export const useUsers = () => {
   const { pb } = usePocketbase()
 
   async function pull() {
-    users.value = await pb.collection<User>('users').getFullList({
-      sort: '-created',
-    });
+    users.value = await pb.collection<User>('user_public_data').getFullList()
+  }
+
+  function getUserById(id: string) {
+    return users.value.find(user => user.id === id)
   }
 
   onMounted(() => {
@@ -25,6 +27,7 @@ export const useUsers = () => {
 
   return {
     users: readonly(users),
-    pull
+    pull,
+    getUserById,
   }
 }

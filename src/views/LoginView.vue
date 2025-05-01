@@ -24,7 +24,8 @@ function submit() {
       router.push({ name: 'quests' });
     })
     .catch((error) => {
-      notify(error.message, ToastType.error);
+      const data = error.data as { [key: string]: {code: string, message: string} };
+      notify(error.message+": "+Object.values(data).map(d => d.message).join(', '), ToastType.error);
     });
 }
 
@@ -34,9 +35,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="full-size flex flex-col justify-center items-center">
+  <div class="flex flex-col h-dvw justify-center items-center">
     <div class="flex flex-col w-full max-w-sm gap-3">
-      <h1 class="text-2xl font-bold">Login</h1>
       <input ref="mail-input" v-model="email" @keyup.enter="submit" type="email" placeholder="E-Mail"
         class="input w-full" />
       <input type="password" v-model="password" @keyup.enter="submit" placeholder="********" class="input w-full" />
@@ -46,8 +46,3 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped>
-.full-size {
-  height: calc(100vh - 4rem);
-}
-</style>

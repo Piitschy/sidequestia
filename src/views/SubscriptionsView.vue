@@ -60,7 +60,7 @@ onMounted(async () => {
 
 <template>
   <div v-if="(subs?.length || 0) > 0" class="flex flex-col gap-3">
-    <ul class="list bg-base-200 rounded-box shadow-md">
+    <ul class="list bg-base-100 rounded-box shadow-md">
       <li v-if="(acceptedQuests?.length || 0) > 0" class="p-4 pb-2 text-xs opacity-60 tracking-wide">Your accepted quests:</li>
       <li class="list-row" v-for="quest in acceptedQuests" :key="quest?.id">
         <div class="list-col-grow" @click="goToQuest(quest?.id)">
