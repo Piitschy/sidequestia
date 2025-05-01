@@ -5,7 +5,7 @@
 
 #app {
   max-width: 100%;
-  max-height: 100vh;
+  max-height: 100dvh;
   overflow: hidden;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
