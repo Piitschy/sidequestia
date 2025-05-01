@@ -13,11 +13,17 @@
   background-color: var(--color-base-200);
 }
 
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
 header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
+  z-index: 100;
 }
 
 main {
