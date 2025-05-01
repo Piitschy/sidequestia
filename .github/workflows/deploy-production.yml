@@ -28,7 +28,7 @@ jobs:
       run: docker push ${{ env.IMG }}/pocketbase:latest
 
     - name: Build the vue Docker image
-      run: docker build -t ${{ env.IMG }}/vue:latest ./server
+      run: docker build -t ${{ env.IMG }}/vue:latest .
 
     - name: Push vue image to GHCR
       run: docker push ${{ env.IMG }}/vue:latest
