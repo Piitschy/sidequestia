@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @plugin "daisyui" {
- themes: retro --default, synthwave --prefersdark;
+ themes: retro --default;
 }
 
 #app {
