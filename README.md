@@ -1,61 +1,96 @@
-# sidequestia
+# Sidequestia 🧭
 
-This template should help get you started developing with Vue 3 in Vite.
+Sidequestia is a playful mobile-first web application designed to bring real-life adventures to your friend group. Create and assign side quests to your friends, who can accept them and earn SideQuest Points (SQP) upon completion. It's a fun and engaging way to gamify everyday activities and strengthen social bonds.
 
-## Recommended IDE Setup
+ <!-- Replace with an actual screenshot -->
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
-## Type Support for `.vue` Imports in TS
+---
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## 🚀 Features
 
-## Customize configuration
+Quest Creation: Design custom side quests for your friends.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+SQP System: Earn and track SideQuest Points for completed tasks.
 
-## Project Setup
+Mobile-Optimized: Seamless experience on mobile devices.
 
-```sh
-bun install
-```
+Collaborative Fun: Enhance real-life interactions through gamification.
 
-### Compile and Hot-Reload for Development
 
-```sh
-bun dev
-```
 
-### Type-Check, Compile and Minify for Production
+---
 
-```sh
-bun run build
-```
+## 🛠️ Getting Started
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+Prerequisites
 
-```sh
-bun test:unit
-```
+Ensure you have the following installed:
 
-### Run End-to-End Tests with [Cypress](https://www.cypress.io/)
+Docker Compose
 
-```sh
-bun test:e2e:dev
-```
+GNU Make
 
-This runs the end-to-end tests against the Vite development server.
-It is much faster than the production build.
 
-But it's still recommended to test the production build with `test:e2e` before deploying (e.g. in CI environments):
+### Installation
 
-```sh
-bun run build
-bun test:e2e
-```
+1. Clone the repository:
 
-### Lint with [ESLint](https://eslint.org/)
+git clone https://github.com/Piitschy/sidequestia.git
+cd sidequestia
 
-```sh
-bun lint
-```
+
+2. Start the development environment:
+
+make dev
+
+
+3. Open your browser and navigate to http://localhost:3000 to access the app.
+
+
+
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! If you're interested in enhancing Sidequestia:
+
+1. Fork the repository.
+
+
+2. Create a new branch:
+
+git checkout -b feature/YourFeature
+
+
+3. Commit your changes:
+
+git commit -m 'Add YourFeature'
+
+
+4. Push to the branch:
+
+git push origin feature/YourFeature
+
+
+5. Open a pull request detailing your changes.
+
+
+
+
+---
+
+## 📄 License
+
+This project is open-source and available under the MIT License.
+
+
+---
+
+## 📬 Contact
+
+For questions or suggestions:
+
+GitHub: @Piitschy
+
