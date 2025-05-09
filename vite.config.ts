@@ -83,7 +83,6 @@ export default defineConfig({
           }
         ],
         "start_url": "/",
-        "display_override": ["fullscreen", "minimal-ui"],
         "display": "standalone",
         "background_color": "#ece3ca",
         "theme_color": "#ece3ca"
