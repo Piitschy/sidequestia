@@ -22,61 +22,61 @@ export default defineConfig({
         "description": "SideQuestia is a playful mobile-first web application designed to bring real-life adventures to your friend group. Create and assign side quests to your friends, who can accept them and earn SideQuest Points (SQP) upon completion. It's a fun and engaging way to gamify everyday activities and strengthen social bonds.",
         "icons": [
           {
-            "src": "icons/icon-48x48.png",
+            "src": "/icons/icon-48x48.png",
             "sizes": "48x48",
             "purpose": "any",
             "type": "image/png"
           },
           {
-            "src": "icons/icon-72x72.png",
+            "src": "/icons/icon-72x72.png",
             "sizes": "72x72",
             "purpose": "any",
             "type": "image/png"
           },
           {
-            "src": "icons/icon-96x96.png",
+            "src": "/icons/icon-96x96.png",
             "sizes": "96x96",
             "purpose": "any",
             "type": "image/png"
           },
           {
-            "src": "icons/icon-128x128.png",
+            "src": "/icons/icon-128x128.png",
             "sizes": "128x128",
             "purpose": "any",
             "type": "image/png"
           },
           {
-            "src": "icons/icon-144x144.png",
+            "src": "/icons/icon-144x144.png",
             "sizes": "144x144",
             "purpose": "any",
             "type": "image/png"
           },
           {
-            "src": "icons/icon-152x152.png",
+            "src": "/icons/icon-152x152.png",
             "sizes": "152x152",
             "purpose": "any",
             "type": "image/png"
           },
           {
-            "src": "icons/icon-192x192.png",
+            "src": "/icons/icon-192x192.png",
             "sizes": "192x192",
             "purpose": "maskable",
             "type": "image/png"
           },
           {
-            "src": "icons/icon-256x256.png",
+            "src": "/icons/icon-256x256.png",
             "sizes": "256x256",
             "purpose": "any",
             "type": "image/png"
           },
           {
-            "src": "icons/icon-384x384.png",
+            "src": "/icons/icon-384x384.png",
             "sizes": "384x384",
             "purpose": "any",
             "type": "image/png"
           },
           {
-            "src": "icons/icon-512x512.png",
+            "src": "/icons/icon-512x512.png",
             "sizes": "512x512",
             "purpose": "maskable",
             "type": "image/png"
