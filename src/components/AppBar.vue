@@ -21,7 +21,7 @@ const { logout } = usePocketbase();
     </button>
   </div>
   <div class="flex-1">
-      <a class="btn btn-ghost text-xl">{{titlecase($route.name?.toString() || 'SideQuestia')}}</a>
+      <a class="btn btn-ghost text-xl">{{titlecase(drawer ? 'Parties' : $route.name?.toString() || 'SideQuestia')}}</a>
   </div>
   <AppThemeSelector />
   <div class="flex-none">

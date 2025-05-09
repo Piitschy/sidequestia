@@ -23,6 +23,9 @@ watch(() => drawer, (newValue) => {
       <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
       <ul class="menu bg-base-200 text-base-content min-h-full w-80 px-4 py-[76px]">
         <!-- Sidebar content here -->
+        <li>
+          This feature will come soon!
+        </li>
       </ul>
     </div>
   </div>

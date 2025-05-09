@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import { useThemeStore } from '@/stores/theme';
+
+
+const themeStore = useThemeStore();
+</script>
 
 <template>
 <div class="dropdown dropdown-end">
@@ -16,6 +22,7 @@
     <li>
       <input
         type="radio"
+        v-model="themeStore.theme"
         name="theme-dropdown"
         class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
         aria-label="Default"
@@ -24,6 +31,7 @@
     <li>
       <input
         type="radio"
+        v-model="themeStore.theme"
         name="theme-dropdown"
         class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
         aria-label="Etienne"
