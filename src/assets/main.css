@@ -3,6 +3,41 @@
  themes: retro --default;
 }
 
+@plugin "daisyui/theme" {
+  name: "etienne";
+  default: false;
+  prefersdark: false;
+  color-scheme: "dark";
+  --color-base-100: oklch(39% 0.095 152.535);
+  --color-base-200: oklch(26% 0.065 152.934);
+  --color-base-300: oklch(26% 0.065 152.934);
+  --color-base-content: oklch(90% 0.076 70.697);
+  --color-primary: oklch(50% 0.118 165.612);
+  --color-primary-content: oklch(98% 0.026 102.212);
+  --color-secondary: oklch(44% 0.119 151.328);
+  --color-secondary-content: oklch(97% 0.014 308.299);
+  --color-accent: oklch(64% 0.2 131.684);
+  --color-accent-content: oklch(87% 0.169 91.605);
+  --color-neutral: oklch(43% 0.095 166.913);
+  --color-neutral-content: oklch(92% 0.12 95.746);
+  --color-info: oklch(66% 0.179 58.318);
+  --color-info-content: oklch(30% 0.056 229.695);
+  --color-success: oklch(83% 0.128 66.29);
+  --color-success-content: oklch(27% 0.046 192.524);
+  --color-warning: oklch(80% 0.114 19.571);
+  --color-warning-content: oklch(92% 0.084 155.995);
+  --color-error: oklch(63% 0.237 25.331);
+  --color-error-content: oklch(98% 0.002 247.839);
+  --radius-selector: 2rem;
+  --radius-field: 2rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.1875rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
 #app {
   max-width: 100%;
   max-height: 100svh;

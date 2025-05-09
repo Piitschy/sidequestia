@@ -52,7 +52,7 @@ const router = createRouter({
     },
     {
       path: '/users',
-      name: 'user',
+      name: 'party',
       component: UserListView,
       meta: {
         dock: true,
