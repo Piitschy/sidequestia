@@ -18,7 +18,7 @@ const { questId: id } = defineProps({
 });
 
 const router = useRouter();
-const { getQuest, accept, quit, done, remove, complete } = useQuests();
+const { getQuest, accept, quit, done, remove, complete, rejectSubscription } = useQuests();
 const { users, getUserById } = useUsers();
 const { pb } = usePocketbase();
 const quest = ref<Quest>()
@@ -58,6 +58,7 @@ const action = async (action: 'accept' | 'quit' | 'done' | 'remove' | 'complete'
     case 'quit':
       await quit(questId);
       notify('You have quit this quest!', ToastType.error);
+      router.go(0);
       break;
     case 'done':
       await done(questId);
@@ -76,6 +77,9 @@ const action = async (action: 'accept' | 'quit' | 'done' | 'remove' | 'complete'
   quest.value = await getQuest(questId);
 };
 
+const refresh = async () => {
+  router.go(0)
+}
 onMounted(async () => {
   quest.value = await getQuest(id);
 });
@@ -85,7 +89,7 @@ const myProofUrl = ref<string | null>(null);
 
 <template>
   <TransistionExpand>
-    <div v-if="quest" class="py-3 flex flex-col w-full gap-3">
+    <div v-if="quest" :key class="py-3 flex flex-col w-full max-w-2xl mx-auto gap-3">
       <div>
         <h1 class="text-3xl text-center">{{ quest?.title }}</h1>
         <h2 class="text-center">
@@ -135,13 +139,20 @@ const myProofUrl = ref<string | null>(null);
         </div>
         <div v-for="subscription in quest.subscriptions" :key="subscription.id" class="flex flex-col
           gap-2">
-          <div class="mx-auto max-w-[200px] w-full flex justify-between items-center">
+          <div v-if="!subscription.proof || subscription.status == 'pending'" class="mx-auto
+            max-w-[250px] w-full flex justify-between items-center">
             <div class="text-sm text-center">
               {{ getUserById(subscription.user)?.name }}
             </div>
             <div class="">
               {{ subscription.status }}
             </div>
+            <button v-if="subscription.status == 'done'" class="btn btn-error btn-sm"
+              @click="rejectSubscription(subscription.id).then(refresh)">reject</button>
+          </div>
+          <div v-else-if="subscription.status == 'done'" class="mx-auto w-full flex gap-1 items-center">
+            <SubscriptionProof v-if="subscription.proof" :text="getUserById(subscription.user)?.name" :sub-id="subscription.id"/>
+            <button class="btn btn-error btn-sm h-20" @click="rejectSubscription(subscription.id).then(refresh)">reject</button>
           </div>
         </div>
       </div>
@@ -160,10 +171,16 @@ const myProofUrl = ref<string | null>(null);
         <p v-else-if="iSubscribed" class="text-center">You have accepted this quest!</p>
       </TransistionExpand>
       <TransistionExpand>
-        <SubscriptionProof v-if="mySub" :sub-id="mySub.id" v-model:myProofUrl="myProofUrl" />
+        <SubscriptionProof v-if="mySub && !(mySub.status == 'done' && iAmCreator)" :sub-id="mySub.id" v-model:myProofUrl="myProofUrl" />
       </TransistionExpand>
       <TransistionExpand>
-        <div v-if="iSubscribed && !iHaveDone && quest.status == 'active'" class="w-full flex flex-col gap-3">
+        <div v-if="mySub?.status == 'rejected'" class="alert alert-error shadow-xl text-center flex justify-center">
+          <span class="text-lg text-pretty">Your proof has been rejected by the creator! Quit and
+            try again.</span>
+        </div>
+      </TransistionExpand>
+      <TransistionExpand>
+        <div v-if="iSubscribed && !iHaveDone && quest.status == 'active' && mySub?.status == 'pending'" class="w-full flex flex-col gap-3">
           <button class="btn btn-success w-full min-h-16 text-xl flex flex-col" :disabled="quest.proof_needed && !myProofUrl" @click="action('done')">
             I've done this!
             <div v-if="quest.proof_needed && !myProofUrl" class="text-sm">Proof Needed</div>

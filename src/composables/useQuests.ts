@@ -1,5 +1,6 @@
 import { onMounted, onUnmounted, readonly, ref } from "vue"
 import { usePocketbase } from "./usePocketbase"
+import { ToastType, useToasterStore } from "@/stores/toaster"
 
 
 export type Quest = {
@@ -20,7 +21,7 @@ export type Quest = {
 export type QuestSubscription = {
   id: string
   user: string
-  status: 'pending' | 'done'
+  status: 'pending' | 'done' | 'rejected'
   quest: string
   proof?: string
   created: string
@@ -33,6 +34,7 @@ export const useQuests = () => {
   const { pb } = usePocketbase()
   const questsCollection = pb.collection<Quest>('quests')
   const questSubscriptionsCollection = pb.collection<QuestSubscription>('quest_subscriptions')
+  const {notify} = useToasterStore()
 
   async function pull() {
     quests.value = await questsCollection.getFullList({
@@ -155,6 +157,20 @@ export const useQuests = () => {
     }
   }
 
+  async function rejectSubscription(id: QuestSubscription['id']) {
+    const sub = await questSubscriptionsCollection.getOne(id)
+    if (sub) {
+      try {
+        await questSubscriptionsCollection.update(id, { status: 'rejected' })
+      } catch (err) {
+        console.error(err)
+        notify('rejection failed', ToastType.error)
+      } finally {
+        await pull()
+      }
+    }
+  }
+
   async function getQuest(id: Quest['id']): Promise<Quest> {
     const quest = await questsCollection.getOne(id)
     const subs = await questSubscriptionsCollection.getFullList({
@@ -181,5 +197,6 @@ export const useQuests = () => {
     getMySubscriptionOnQuest,
     uploadProof,
     deleteProof,
+    rejectSubscription,
   }
 }
