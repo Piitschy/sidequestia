@@ -41,15 +41,15 @@ const router = createRouter({
       props: true,
       component: QuestView,
     },
-    {
-      path: '/subs',
-      name: 'accepted quests',
-      component: SubscriptionsView,
-      meta: {
-        dock: true,
-        icon: "ic:baseline-inbox"
-      }
-    },
+    // {
+    //   path: '/subs',
+    //   name: 'accepted quests',
+    //   component: SubscriptionsView,
+    //   meta: {
+    //     dock: true,
+    //     icon: "ic:baseline-inbox"
+    //   }
+    // },
     {
       path: '/users',
       name: 'party',
