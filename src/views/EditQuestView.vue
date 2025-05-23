@@ -58,6 +58,7 @@ onMounted(async () => {
     v-model:description="quest.description"
     v-model:questpoints="quest.questpoints"
     v-model:seats="quest.seats"
+    v-model:proof_needed="quest.proof_needed"
     submitText="Update Quest"
     @submit="submit"
   ></QuestEditor>

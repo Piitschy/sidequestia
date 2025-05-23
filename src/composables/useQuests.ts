@@ -8,6 +8,7 @@ export type Quest = {
   description: string
   questpoints: number
   status: 'active' | 'completed' | 'failed'
+  proof_needed?: boolean
   seats: number
   expires: string
   creator: string
@@ -21,6 +22,7 @@ export type QuestSubscription = {
   user: string
   status: 'pending' | 'done'
   quest: string
+  proof?: string
   created: string
   updated: string
 }
@@ -55,6 +57,17 @@ export const useQuests = () => {
       sort: '-created',
     })
     return subs
+  }
+
+  async function getMySubscriptionOnQuest(questId: Quest['id']) {
+    try {
+      const sub = await questSubscriptionsCollection.getFirstListItem(`quest="${questId}" && user="${pb.authStore.record?.id}"`)
+      if (!sub) return null
+      return sub
+    } catch (err) {
+      console.error(err)
+      return null
+    }
   }
 
   async function create(quest: Partial<Quest>) {
@@ -127,6 +140,21 @@ export const useQuests = () => {
     }
   }
 
+  async function uploadProof(subId: QuestSubscription['id'], proof: File) {
+    const formData = new FormData()
+    formData.append('proof', proof)
+    await questSubscriptionsCollection.update(subId, formData)
+    await pull()
+  }
+
+  async function deleteProof(subId: QuestSubscription['id']) {
+    const sub = await questSubscriptionsCollection.getOne(subId)
+    if (sub) {
+      await questSubscriptionsCollection.update(subId, { proof: [] })
+      await pull()
+    }
+  }
+
   async function getQuest(id: Quest['id']): Promise<Quest> {
     const quest = await questsCollection.getOne(id)
     const subs = await questSubscriptionsCollection.getFullList({
@@ -150,5 +178,8 @@ export const useQuests = () => {
     update,
     remove,
     complete,
+    getMySubscriptionOnQuest,
+    uploadProof,
+    deleteProof,
   }
 }
