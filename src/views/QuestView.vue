@@ -149,12 +149,12 @@ const myProofUrl = ref<string | null>(null);
             <div class="">
               {{ subscription.status }}
             </div>
-            <button v-if="subscription.status == 'done'" class="btn btn-error btn-sm"
+            <button v-if="subscription.status == 'done' && quest.status != 'completed'" class="btn btn-error btn-sm"
               @click="rejectSubscription(subscription.id).then(refresh)">reject</button>
           </div>
           <div v-else-if="subscription.status == 'done'" class="mx-auto w-full flex gap-1 items-center">
             <SubscriptionProof v-if="subscription.proof" :text="getUserById(subscription.user)?.name" :sub-id="subscription.id"/>
-            <button class="btn btn-error btn-sm h-20" @click="rejectSubscription(subscription.id).then(refresh)">reject</button>
+            <button class="btn btn-error btn-sm h-20" v-if="quest.status != 'completed'" @click="rejectSubscription(subscription.id).then(refresh)">reject</button>
           </div>
         </div>
       </div>
