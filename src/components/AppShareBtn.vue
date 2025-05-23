@@ -19,7 +19,7 @@ const share = async () => {
   try {
     await navigator.share({
       title: quest.value.title,
-      text: `Check out this quest on SideQuestia!`,
+      text: `Check out this quest on SideQuestia! - »${quest.value.title}«`,
       url: url,
     })
     notify('Shared successfully', ToastType.success)
