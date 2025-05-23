@@ -4,19 +4,14 @@ import QuestCard from '@/components/QuestCard.vue';
 import { usePocketbase } from '@/composables/usePocketbase';
 import { useQuests, type Quest } from '@/composables/useQuests';
 import { useUsers } from '@/composables/useUsers';
-import { useUtils } from '@/stores/utils';
-import { computed, reactive } from 'vue';
+import { useQuestFilter } from '@/stores/questfilter';
+import { computed, onMounted } from 'vue';
 
 const { quests } = useQuests();
 const { getUserById } = useUsers();
 const {pb} = usePocketbase();
 
-const filter = reactive({
-  myQuests: false,
-  myAcceptedQuests: false,
-  activeQuests: false,
-  search: '',
-})
+const { filter} = useQuestFilter();
 
 const search = (q:Quest) => {
   if (!filter.search) { return true; }
@@ -39,7 +34,14 @@ const filteredQuests = computed(() => {
   })
 });
 
-const { showFilterBubble } = useUtils();
+
+onMounted(() => {
+  setTimeout(() => {
+    if (filter.show === null) {
+      filter.show = true;
+    }
+  }, 1000);
+})
 </script>
 
 <template>
@@ -50,7 +52,7 @@ const { showFilterBubble } = useUtils();
       </div>
     </TransitionGroup>
   </div>
-  <AppBubble :show="showFilterBubble">
+  <AppBubble :show="filter.show || false">
     <button class="transition-all min-w-24 btn btn-neutral join-item" :class="{'brightness-125':filter.myQuests}" @click="filter.myQuests = !filter.myQuests">My Quests</button>
     <button class="transition-all min-w-24 btn bg-base-100 btn-outline join-item" :class="{'brightness-125':filter.activeQuests}" @click="filter.activeQuests = !filter.activeQuests">Active</button>
     <button class="transition-all min-w-24 btn btn-success join-item" :class="{'brightness-125':filter.myAcceptedQuests}" @click="filter.myAcceptedQuests = !filter.myAcceptedQuests">Accepted</button>

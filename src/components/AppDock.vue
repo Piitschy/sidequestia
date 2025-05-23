@@ -2,15 +2,14 @@
 import { RouterLink, useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue';
 import { titlecase } from '@/utils/strings';
-import { useUtils } from '@/stores/utils';
+import { useQuestFilter } from '@/stores/questfilter';
 const router = useRouter();
 
-const { toggleFilterBubble, showFilterBubble } = useUtils();
+const { toggleFilterBubble } = useQuestFilter();
+
 router.afterEach((to, from) => {
   if (to.name == from.name) {
     toggleFilterBubble();
-  } else {
-    showFilterBubble.value = false;
   }
 });
 </script>
