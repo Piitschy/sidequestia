@@ -44,10 +44,10 @@ const { open, onChange } = useFileDialog({
   accept: 'image/*', // Set to accept only image files
 })
 
-onChange(async (files) => {
+onChange(async (files:FileList|null) => {
+  if (!files) return
+  if (files.length === 0) return
   if (!subscription.value) return
-
-  console.log('Files[0]:', files[0])
 
   const file = files[0]
   try {
@@ -71,7 +71,7 @@ async function del(){
 </script>
 
 <template>
-  <button v-if="!myProofUrl" class="btn btn-outline w-full" @click="open">
+  <button v-if="!myProofUrl" class="btn btn-outline w-full" @click="open()">
     <Icon icon="ic:baseline-add-photo-alternate" width="24" class=""/>
     Upload Proof
   </button>
@@ -79,12 +79,11 @@ async function del(){
     <div v-if="myProofUrl" class="relative flex overflow-hidden items-center rounded max-h-20 h-20">
       <img :src="myProofUrl" class="w-full blur-sm"/>
       <div class="absolute top-0 bottom-0 left-0 right-0 flex items-center">
-        <button v-if="subscription?.status == 'pending'" class="h-full min-w-1/5 flex justify-center items-center" style="z-index: 50;" @click="open">
+        <button v-if="subscription?.status == 'pending'" class="h-full min-w-1/5 flex justify-center
+          items-center" style="z-index: 50;" @click="open()">
           <Icon icon="ic:baseline-autorenew" width="46" class=" text-success text-shadow-lg/30 text-shadow-black"/>
         </button>
-        <button class="h-full w-full" style="z-index: 50;" @contextmenu="() => {}" @mousedown="show
-          = true" @touchstart="show = true" @mouseup="show = false" @touchend="show =
-            false">{{text}}</button>
+        <button class="h-full w-full" style="z-index: 50;" @contextmenu="() => {}" @mousedown="show = true" @touchstart="show = true" @mouseup="show = false" @touchend="show = false">{{text}}</button>
         <button v-if="subscription?.status == 'pending'" class="h-full min-w-1/5 flex justify-center items-center" style="z-index: 50;"
           @click="del">
           <Icon icon="ic:baseline-delete-outline" width="46" class=" text-error text-shadow-lg/30 text-shadow-black"/>
