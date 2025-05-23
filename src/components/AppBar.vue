@@ -3,13 +3,25 @@ import { usePocketbase } from '@/composables/usePocketbase';
 import { titlecase } from '@/utils/strings';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import AppThemeSelector from './AppThemeSelector.vue';
+import { useRouter } from 'vue-router';
 
 const drawer = defineModel('drawer', {
   default: false,
   type: Boolean,
 });
 
-const { logout } = usePocketbase();
+const { logout: pbLogout, refresh } = usePocketbase();
+
+const router = useRouter();
+async function logout() {
+  try {
+    await pbLogout();
+    await refresh();
+    router.push({ name: 'login' });
+  } catch (error) {
+    console.error('Logout failed:', error);
+  }
+}
 
 </script>
 

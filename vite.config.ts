@@ -82,8 +82,21 @@ export default defineConfig({
             "type": "image/png"
           }
         ],
+        "screenshots": [
+          {
+            "src": "/screenshots/quests.jpg",
+            "sizes": "2400x1080",
+            "type": "image/jpeg",
+            "label": "Quests Screen",
+          },
+          {
+            "src": "/screenshots/login.jpg",
+            "sizes": "2400x1080",
+            "type": "image/jpeg",
+            "label": "Login Screen",
+          },
+        ],
         "start_url": "/",
-        "display_override": ["fullscreen", "minimal-ui"],
         "display": "standalone",
         "background_color": "#ece3ca",
         "theme_color": "#ece3ca"

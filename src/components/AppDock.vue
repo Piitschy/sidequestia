@@ -1,7 +1,17 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue';
 import { titlecase } from '@/utils/strings';
+import { useQuestFilter } from '@/stores/questfilter';
+const router = useRouter();
+
+const { toggleFilterBubble } = useQuestFilter();
+
+router.afterEach((to, from) => {
+  if (to.name == from.name) {
+    toggleFilterBubble();
+  }
+});
 </script>
 
 <template>

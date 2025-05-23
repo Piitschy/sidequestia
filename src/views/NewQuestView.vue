@@ -13,6 +13,7 @@ const newQuest = reactive<Partial<Quest>>(
     description: '',
     questpoints: undefined,
     seats: undefined,
+    proof_needed: true,
   }
 )
 
@@ -44,6 +45,7 @@ const submit = async () => {
     v-model:description="newQuest.description"
     v-model:questpoints="newQuest.questpoints"
     v-model:seats="newQuest.seats"
+    v-model:proof_needed="newQuest.proof_needed"
     submitText="Create Quest"
     @submit="submit"
   ></QuestEditor>
