@@ -7,7 +7,7 @@ import { useUsers } from '@/composables/useUsers';
 import { ToastType, useToasterStore } from '@/stores/toaster';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { Icon } from '@iconify/vue';
+import AppShareBtn from '@/components/AppShareBtn.vue';
 
 const key = ref(0);
 
@@ -86,37 +86,12 @@ onMounted(async () => {
 });
 
 const myProofUrl = ref<string | null>(null);
-
-const share = async () => {
-  if (!quest.value) return;
-  const url = `${window.location.origin}/quests/${quest.value.id}`;
-  try {
-    await navigator.share({
-      title: quest.value.title,
-      text: `Check out this quest on SideQuestia!`,
-      url: url,
-    })
-    notify('Shared successfully', ToastType.success);
-  } catch {
-    navigator.clipboard.writeText(url).then(() => {
-      notify('Link copied to clipboard!', ToastType.success);
-    }).catch((error) => {
-      console.error('Error sharing:', error);
-      notify('Error sharing quest', ToastType.error);
-    });
-  }
-};
 </script>
 
 <template>
 
   <TransistionExpand>
     <div v-if="quest" :key class="relative py-3 flex flex-col w-full max-w-2xl mx-auto gap-3">
-      <div class="absolute top-0 right-0">
-        <button class="btn btn-ghost btn-circle" @click="share">
-          <Icon icon="ic:baseline-share" width="24"/>
-        </button>
-      </div>
       <div>
         <h1 class="text-3xl text-center">{{ quest?.title }}</h1>
         <h2 class="text-center">
@@ -145,6 +120,8 @@ const share = async () => {
           <div class="stat-value">{{ timesPending }}</div>
         </div>
       </div>
+      <AppShareBtn class="btn w-full btn-outline" text="Share this Quest" :quest-id="quest.id" />
+      <AppShareBtn v-if="quest.title.length > 20" class="btn w-full btn-outline" text="Share this Quest" :quest-id="quest.id" />
 
       <div v-if="iAmCreator" class="flex flex-col gap-3 my-5 bg-base-300 p-3 rounded-lg">
         <h2 class="text-center text-lg">You are the creator of this quest!</h2>
