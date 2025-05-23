@@ -28,6 +28,11 @@ const subscription = computed(() => {
   return quest.subscriptions?.find((s) => s.id === id)
 })
 
+const completed = computed(() => {
+  const quest = quests.value.find((q) => q.subscriptions?.some((s) => s.id === id))
+  return quest?.status === 'completed'
+})
+
 const myProofUrl = defineModel<string|null>('myProofUrl', {
   default: null,
 })
@@ -71,19 +76,22 @@ async function del(){
 </script>
 
 <template>
-  <button v-if="!myProofUrl" class="btn btn-outline w-full" @click="open()">
+  <button v-if="!myProofUrl && !completed" class="btn btn-outline w-full" @click="open()">
     <Icon icon="ic:baseline-add-photo-alternate" width="24" class=""/>
     Upload Proof
   </button>
+  <UtilsDisableContextClick>
   <TransistionExpand>
-    <div v-if="myProofUrl" class="relative flex overflow-hidden items-center rounded max-h-20 h-20">
+    <div v-if="myProofUrl" class="relative flex overflow-hidden items-center rounded-md max-h-20 h-20"
+        @contextmenu.prevent>
       <img :src="myProofUrl" class="w-full blur-sm"/>
       <div class="absolute top-0 bottom-0 left-0 right-0 flex items-center">
         <button v-if="subscription?.status == 'pending'" class="h-full min-w-1/5 flex justify-center
           items-center" style="z-index: 50;" @click="open()">
           <Icon icon="ic:baseline-autorenew" width="46" class=" text-success text-shadow-lg/30 text-shadow-black"/>
         </button>
-        <button class="h-full w-full" style="z-index: 50;" @contextmenu="() => {}" @mousedown="show = true" @touchstart="show = true" @mouseup="show = false" @touchend="show = false">{{text}}</button>
+        <button class="h-full w-full" style="z-index: 50;" @mousedown="show = true"
+            @touchstart="show = true" @mouseup="show = false" @touchend="show = false" @contextmenu.prevent>{{text}}</button>
         <button v-if="subscription?.status == 'pending'" class="h-full min-w-1/5 flex justify-center items-center" style="z-index: 50;"
           @click="del">
           <Icon icon="ic:baseline-delete-outline" width="46" class=" text-error text-shadow-lg/30 text-shadow-black"/>
@@ -91,10 +99,11 @@ async function del(){
       </div>
     </div>
   </TransistionExpand>
+  </UtilsDisableContextClick>
   <Teleport to="body">
     <Transition name="fade">
-      <div v-show="show" @click="show = false" @touchend="show = false" @mouseup="show = false" style="z-index: 500;" class="fixed top-0 left-0 w-full h-full backdrop-blur-sm backdrop-brightness-50 flex items-center justify-center">
-        <img v-if="myProofUrl" :src="myProofUrl" class="max-h-[90vh] max-w-[90vw] object-contain"/>
+      <div @contextmenu.prevent v-show="show" @click="show = false" @touchend="show = false" @mouseup="show = false" style="z-index: 500;" class="fixed top-0 left-0 w-full h-full backdrop-blur-sm backdrop-brightness-50 flex items-center justify-center">
+        <img v-if="myProofUrl" :src="myProofUrl" class="max-h-[90vh] max-w-[90vw] object-contain rounded-2xl"/>
       </div>
     </Transition>
   </Teleport>

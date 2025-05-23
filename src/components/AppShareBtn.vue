@@ -15,7 +15,8 @@ const { notify } = useToasterStore()
 
 const share = async () => {
   if (!quest.value) return
-  const url = `${window.location.origin}/quests/${quest.value.id}`
+  const origin = window.location.origin;
+  const url = `${origin.replace('stage.', 'app.')}/quests/${quest.value.id}`
   try {
     await navigator.share({
       title: quest.value.title,

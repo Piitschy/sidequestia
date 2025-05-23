@@ -5,7 +5,7 @@ import { usePocketbase } from '@/composables/usePocketbase';
 import { useQuests, type Quest } from '@/composables/useQuests';
 import { useUsers } from '@/composables/useUsers';
 import { ToastType, useToasterStore } from '@/stores/toaster';
-import { computed, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import AppShareBtn from '@/components/AppShareBtn.vue';
 
@@ -75,12 +75,14 @@ const action = async (action: 'accept' | 'quit' | 'done' | 'remove' | 'complete'
       router.push({ name: 'quests' });
       break;
   }
-  quest.value = await getQuest(questId);
+  await nextTick();
+  setTimeout(async () => quest.value = await getQuest(questId), 300);
 };
 
 const refresh = async () => {
   router.go(0)
 }
+
 onMounted(async () => {
   quest.value = await getQuest(id);
 });
@@ -141,8 +143,7 @@ const myProofUrl = ref<string | null>(null);
         </div>
         <div v-for="subscription in quest.subscriptions" :key="subscription.id" class="flex flex-col
           gap-2">
-          <div v-if="!subscription.proof || subscription.status == 'pending'" class="mx-auto
-            max-w-[250px] w-full flex justify-between items-center">
+          <div v-if="!subscription.proof || subscription.status == 'pending'" class="mx-auto max-w-[250px] w-full flex justify-between items-center">
             <div class="text-sm text-center">
               {{ getUserById(subscription.user)?.name }}
             </div>
@@ -155,6 +156,14 @@ const myProofUrl = ref<string | null>(null);
           <div v-else-if="subscription.status == 'done'" class="mx-auto w-full flex gap-1 items-center">
             <SubscriptionProof v-if="subscription.proof" :text="getUserById(subscription.user)?.name" :sub-id="subscription.id"/>
             <button class="btn btn-error btn-sm h-20" v-if="quest.status != 'completed'" @click="rejectSubscription(subscription.id).then(refresh)">reject</button>
+          </div>
+          <div v-else-if="subscription.status == 'rejected'" class="mx-auto max-w-[250px] text-error w-full flex justify-between items-center">
+            <div class="text-sm text-center">
+              {{ getUserById(subscription.user)?.name }}
+            </div>
+            <div class="">
+              {{ subscription.status }}
+            </div>
           </div>
         </div>
       </div>
@@ -170,7 +179,7 @@ const myProofUrl = ref<string | null>(null);
               receive your well-deserved SideQuestPoints :)</span>
           </TransistionExpand>
         </div>
-        <p v-else-if="iSubscribed" class="text-center">You have accepted this quest!</p>
+        <p v-else-if="iSubscribed" class="text-center text-lg text-success brightness-90">You have accepted this quest!</p>
       </TransistionExpand>
       <TransistionExpand>
         <SubscriptionProof v-if="mySub && !(mySub.status == 'done' && iAmCreator)" :sub-id="mySub.id" v-model:myProofUrl="myProofUrl" />
