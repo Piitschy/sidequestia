@@ -121,8 +121,6 @@ const myProofUrl = ref<string | null>(null);
         </div>
       </div>
       <AppShareBtn class="btn w-full btn-outline" text="Share this Quest" :quest-id="quest.id" />
-      <AppShareBtn v-if="quest.title.length > 20" class="btn w-full btn-outline" text="Share this Quest" :quest-id="quest.id" />
-
       <div v-if="iAmCreator" class="flex flex-col gap-3 my-5 bg-base-300 p-3 rounded-lg">
         <h2 class="text-center text-lg">You are the creator of this quest!</h2>
         <TransistionExpand>
