@@ -25,6 +25,10 @@ async function join() {
     router.push({ name: 'party', params: { partyName: code.value } });
   } catch (error) {
     console.error('Error creating party:', error);
+    if (error instanceof Error) {
+      notify(`Failed to join party: ${error.message}`, ToastType.error);
+      return;
+    }
     notify(`Failed to join party.`, ToastType.error);
   }
 }
