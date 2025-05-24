@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 
-export const usePartyStore = defineStore('theme', {
+export const usePartyStore = defineStore('party', {
   state: () => ({
     currPartyId: null as string | null,
   }),
