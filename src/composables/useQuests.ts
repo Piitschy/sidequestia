@@ -32,6 +32,7 @@ export type QuestSubscription = {
 }
 
 const quests = ref<Quest[]>([])
+const lastUpdated = ref<Date | null>(null)
 
 export const useQuests = () => {
   const { pb } = usePocketbase()
@@ -45,6 +46,7 @@ export const useQuests = () => {
       sort: '-created',
     })
     pullSubscriptions()
+    lastUpdated.value = new Date()
   }
 
   async function pullSubscriptions() {
@@ -113,7 +115,9 @@ export const useQuests = () => {
   }
 
   onMounted(async () => {
-    if (quests.value.length === 0) pull();
+    if (quests.value.length === 0 || !lastUpdated.value || (new Date().getTime() - lastUpdated.value.getTime()) > 10_000) {
+      pull()
+    }
     console.log('Quests mounted')
   })
 

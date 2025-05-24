@@ -16,6 +16,7 @@ export type Party = {
 }
 
 const parties = ref<Party[]>([])
+const lastUpdated = ref<Date | null>(null)
 
 export const useParties = () => {
   const { pb } = usePocketbase()
@@ -31,6 +32,7 @@ export const useParties = () => {
       // If there's only one party, automatically set it as the current party
       currPartyId.value = parties.value[0].id
     }
+    lastUpdated.value = new Date()
   }
 
   const currParty = computed(() => {
@@ -96,7 +98,9 @@ export const useParties = () => {
   })
 
   onMounted(() => {
-    pull()
+    if (parties.value.length === 0 || !lastUpdated.value || (new Date().getTime() - lastUpdated.value.getTime()) > 10_000) {
+      pull()
+    }
   })
 
   return {

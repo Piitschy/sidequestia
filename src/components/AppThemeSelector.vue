@@ -37,6 +37,15 @@ const themeStore = useThemeStore();
         aria-label="Etienne"
         value="etienne" />
     </li>
+    <li>
+      <input
+        type="radio"
+        v-model="themeStore.theme"
+        name="theme-dropdown"
+        class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+        aria-label="Cani"
+        value="cani" />
+    </li>
   </ul>
 </div>
 </template>

@@ -106,6 +106,17 @@ onMounted(async () => {
 });
 
 const myProofUrl = ref<string | null>(null);
+
+const tapCounter = ref(1);
+
+const rm = () => {
+  if (tapCounter.value == 0) {
+    action('remove');
+    return;
+  }
+  tapCounter.value--;
+  notify(`Tap again to remove this quest!`, ToastType.error);
+}
 </script>
 
 <template>
@@ -152,8 +163,8 @@ const myProofUrl = ref<string | null>(null);
             @click="action('complete')">MARK AS COMPLETED</button>
         </TransistionExpand>
         <TransistionExpand>
-          <button v-if="quest.status == 'active'" :disabled="anyDone" class="btn btn-error w-full" @click="action('remove')">DELETE THIS
-            QUEST FOR EVER!!!</button>
+          <button v-if="quest.status == 'active'" :disabled="anyDone" class="btn btn-error w-full"
+            @click="rm">{{tapCounter == 0?'AGAIN TO':''}} DELETE THIS QUEST FOR EVER!!!</button>
         </TransistionExpand>
         <div v-if="(quest.subscriptions || []).length > 0">
           <div class="divider">Adventurers</div>
