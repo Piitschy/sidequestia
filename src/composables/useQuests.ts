@@ -1,6 +1,7 @@
 import { onMounted, ref } from "vue"
 import { usePocketbase } from "./usePocketbase"
 import { ToastType, useToasterStore } from "@/stores/toaster"
+import { usePartyStore } from "@/stores/party"
 
 
 export type Quest = {
@@ -9,6 +10,7 @@ export type Quest = {
   description: string
   questpoints: number
   status: 'active' | 'completed' | 'failed'
+  party: string
   proof_needed?: boolean
   seats: number
   expires: string
@@ -39,6 +41,7 @@ export const useQuests = () => {
 
   async function pull() {
     quests.value = await questsCollection.getFullList({
+      filter: `party="${usePartyStore().currPartyId}"`,
       sort: '-created',
     })
     pullSubscriptions()
@@ -74,7 +77,8 @@ export const useQuests = () => {
   }
 
   async function create(quest: Partial<Quest>) {
-    const newQuest = await questsCollection.create(quest)
+    const partyStore = usePartyStore()
+    const newQuest = await questsCollection.create({...quest, party: partyStore.currPartyId})
     quests.value.push(newQuest)
     return newQuest
   }
