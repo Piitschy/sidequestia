@@ -6,6 +6,8 @@ import SubscriptionsView from '@/views/SubscriptionsView.vue'
 import NewQuestView from '@/views/NewQuestView.vue'
 import EditQuestView from '@/views/EditQuestView.vue'
 import UserListView from '@/views/UserListView.vue'
+import NewPartyView from '@/views/NewPartyView.vue'
+import JoinPartyView from '@/views/JoinPartyView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,11 +53,41 @@ const router = createRouter({
     //   }
     // },
     {
-      path: '/users',
+      path: '/party',
       name: 'party',
       component: UserListView,
       meta: {
         dock: true,
+        icon: "ic:outline-supervised-user-circle"
+      }
+    },
+    {
+      path: '/party/new',
+      name: 'new party',
+      props: true,
+      component: NewPartyView,
+      meta: {
+        dock: false,
+        icon: "ic:outline-supervised-user-circle"
+      }
+    },
+    {
+      path: '/party/join/:inviteCode',
+      name: 'join party with code',
+      props: true,
+      component: JoinPartyView,
+      meta: {
+        dock: false,
+        icon: "ic:outline-supervised-user-circle"
+      }
+    },
+    {
+      path: '/party/join',
+      name: 'join party',
+      props: true,
+      component: JoinPartyView,
+      meta: {
+        dock: false,
         icon: "ic:outline-supervised-user-circle"
       }
     },
