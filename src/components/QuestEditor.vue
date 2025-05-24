@@ -26,7 +26,7 @@ defineEmits(['submit'])
 </script>
 
 <template>
-  <div class="flex flex-col h-dvw max-w-xl mx-auto justify-center items-center gap-3">
+  <div class="flex flex-col max-w-xl mx-auto justify-center items-center gap-3">
     <input v-model="title" type="text" placeholder="Title" class="input w-full" />
     <textarea ref="textarea" v-model="description" class="textarea w-full overflow-hidden" placeholder="Description"></textarea>
     <input
