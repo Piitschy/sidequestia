@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useTextareaAutosize } from '@vueuse/core'
 import { watchEffect } from 'vue'
 
 const title = defineModel<string>('title')
@@ -6,6 +7,11 @@ const description = defineModel<string>('description')
 const questpoints = defineModel<number>('questpoints')
 const seats = defineModel<number | undefined>('seats')
 const proofNeeded = defineModel<boolean>('proof_needed')
+const { textarea, input } = useTextareaAutosize()
+
+watchEffect(() => {
+  input.value = description.value || ''
+})
 
 watchEffect(() => {
   if (seats.value == 0) {
@@ -22,7 +28,7 @@ defineEmits(['submit'])
 <template>
   <div class="flex flex-col h-dvw max-w-xl mx-auto justify-center items-center gap-3">
     <input v-model="title" type="text" placeholder="Title" class="input w-full" />
-    <textarea v-model="description" class="textarea w-full" placeholder="Description"></textarea>
+    <textarea ref="textarea" v-model="description" class="textarea w-full overflow-hidden" placeholder="Description"></textarea>
     <input
       v-model="questpoints"
       type="number"
