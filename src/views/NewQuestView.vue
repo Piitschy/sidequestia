@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import QuestEditor from '@/components/QuestEditor.vue';
+import { useParties } from '@/composables/useParties';
 import { usePocketbase } from '@/composables/usePocketbase';
 import { useQuests, type Quest } from '@/composables/useQuests';
 import { ToastType, useToasterStore } from '@/stores/toaster';
-import { reactive } from 'vue';
+import { onMounted, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 
 
@@ -36,6 +37,13 @@ const submit = async () => {
     return false;
   });
 }
+
+const {currParty} = useParties();
+onMounted(() => {
+  if (!currParty.value?.id) {
+    router.push('/');
+  }
+});
 
 </script>
 

@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
@@ -22,6 +23,7 @@ func main() {
 		g.Bind(apis.RequireAuth())
 		g.POST("/accept-quest", AcceptQuestHandler)
 		g.POST("/payout", PayOutHandler)
+		g.POST("/join-party", JoinPartyHandler)
 
 		return se.Next()
 	})
@@ -45,14 +47,53 @@ func main() {
 			}).
 			All(&users)
 		for _, user := range users {
-			e.App.DB().
-				NewQuery("UPDATE users SET questpoints = questpoints + {:sqp} WHERE id = {:id}").
-				Bind(dbx.Params{
-					"sqp": e.Record.GetInt("questpoints"),
-					"id":  user.Id,
+			rec, err := e.App.FindFirstRecordByFilter(
+				"party_users",
+				"user.id={:user} && party.id={:party}",
+				dbx.Params{
+					"user":  user.Id,
+					"party": e.Record.GetString("party"),
 				},
-				).
+			)
+			if err != nil {
+				log.Printf("Failed to update quest points for user %s: %v", user.Id, err)
+				continue
+			}
+			questPoints := e.Record.GetInt("questpoints")
+			// Update the user's quest questPoints
+			rec.Set("questpoints", rec.GetInt("questpoints")+questPoints)
+			if err := e.App.Save(rec); err != nil {
+				log.Printf("Failed to update quest points for user %s: %v", user.Id, err)
+				continue
+			}
+			log.Printf("Updated quest points for user %s: %d", user.Id, rec.GetInt("questpoints"))
+			if err := e.App.Save(rec); err != nil {
+				log.Printf("Failed to save updated quest points for user %s: %v", user.Id, err)
+				continue
+			}
+		}
+		return e.Next()
+	})
+
+	app.OnRecordAfterCreateSuccess("parties").BindFunc(func(e *core.RecordEvent) error {
+		// create party_users from admin user
+		admins := e.Record.GetStringSlice("admins")
+		partyId := e.Record.Id
+		if len(admins) == 0 {
+			return e.Next()
+		}
+		for _, admin := range admins {
+			_, err := e.App.DB().
+				NewQuery("INSERT INTO party_users (party, user, questpoints) VALUES ({:party}, {:user}, 0)").
+				Bind(dbx.Params{
+					"party": partyId,
+					"user":  admin,
+				}).
 				Execute()
+			if err != nil {
+				log.Printf("Failed to create party user for admin %s: %v", admin, err)
+				continue
+			}
 		}
 		return e.Next()
 	})
@@ -60,6 +101,69 @@ func main() {
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+type JoinPartyRequest struct {
+	InviteCode string `json:"invite_code" form:"invite_code" binding:"required"`
+}
+
+func JoinPartyHandler(e *core.RequestEvent) error {
+	body := &JoinPartyRequest{}
+	if err := e.BindBody(&body); err != nil {
+		return e.BadRequestError("Failed to read request data", err)
+	}
+
+	// Find the party by invite code
+	inviteCode := strings.ToUpper(body.InviteCode)
+	party, err := e.App.FindFirstRecordByFilter(
+		"parties",
+		"invite_code={:invite_code}",
+		dbx.Params{
+			"invite_code": inviteCode,
+		},
+	)
+	if err != nil {
+		return e.BadRequestError("Failed to find party", err)
+	}
+
+	rec, err := e.App.FindFirstRecordByFilter(
+		"party_users",
+		"user.id={:user} && party.id={:party}",
+		dbx.Params{
+			"user":  e.Auth.Id,
+			"party": party.Id,
+		},
+	)
+	if err == nil {
+		// User is already in the party
+		disabled := rec.GetBool("disabled")
+		if disabled {
+			// If the user is disabled, re-enable them
+			rec.Set("disabled", false)
+			if err := e.App.Save(rec); err != nil {
+				return e.BadRequestError("Failed to re-enable user in party", err)
+			}
+			return e.JSON(
+				http.StatusOK,
+				map[string]any{"success": true, "message": "Re-enabled user in party"},
+			)
+		}
+		return e.BadRequestError("User is already in the party", nil)
+	}
+
+	_, err = e.App.DB().
+		NewQuery("INSERT INTO party_users (party, user, questpoints) VALUES ({:party}, {:user}, 0)").
+		Bind(dbx.Params{
+			"party": party.Id,
+			"user":  e.Auth.Id,
+		}).
+		Execute()
+	if err != nil {
+		return e.BadRequestError("Failed to join party", err)
+	}
+
+	// Return a success response
+	return e.JSON(http.StatusOK, map[string]any{"success": true, "party_id": party.Id})
 }
 
 type PayOutRequest struct {
@@ -88,14 +192,21 @@ func PayOutHandler(e *core.RequestEvent) error {
 
 	// Set user's quest points
 	userId := subscription.GetString("user")
-	user, err := e.App.FindRecordById("users", userId)
+	partyuser, err := e.App.FindFirstRecordByFilter(
+		"party_users",
+		"user.id={:user} && party.id={:party}",
+		dbx.Params{
+			"user":  userId,
+			"party": quest.GetString("party"),
+		},
+	)
 	if err != nil {
 		return e.BadRequestError("Failed to find user", err)
 	}
 	questPoints := quest.GetInt("questpoints")
 	// Update the user's quest points
-	user.Set("questpoints", user.GetInt("questpoints")+questPoints)
-	if err := e.App.Save(user); err != nil {
+	partyuser.Set("questpoints", partyuser.GetInt("questpoints")+questPoints)
+	if err := e.App.Save(partyuser); err != nil {
 		return e.BadRequestError("Failed to update user quest points", err)
 	}
 

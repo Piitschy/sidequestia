@@ -6,6 +6,7 @@ import { usePocketbase } from '@/composables/usePocketbase';
 import { onMounted, ref } from 'vue';
 import AppBar from './components/AppBar.vue';
 import AppDrawer from './components/AppDrawer.vue';
+import { useParties } from './composables/useParties';
 
 const { refresh } = usePocketbase();
 const router = useRouter();
@@ -18,11 +19,22 @@ onMounted(() => {
 });
 
 const drawer = ref(false);
+
+const {currParty} = useParties();
+const { pb } = usePocketbase();
+onMounted(() => {
+  setTimeout(() => {
+    if (!currParty.value?.id && pb.authStore.record?.id) {
+      router.push('/');
+      drawer.value = true;
+    }
+  }, 1000);
+})
 </script>
 
 <template>
   <AppToasterDisplay />
-  <AppDrawer :drawer>
+  <AppDrawer v-model:drawer="drawer">
     <header>
       <AppBar v-model:drawer="drawer" />
     </header>

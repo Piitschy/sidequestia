@@ -35,7 +35,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col h-dvw justify-center items-center">
+  <div class="flex flex-col h-2/3 justify-center items-center">
     <div class="flex flex-col w-full max-w-sm gap-3">
       <input ref="mail-input" v-model="email" @keyup.enter="submit" type="email" placeholder="E-Mail"
         class="input w-full" />

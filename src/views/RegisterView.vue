@@ -34,7 +34,7 @@ function submit() {
 </script>
 
 <template>
-  <div class="flex flex-col h-dvw justify-center items-center">
+  <div class="flex flex-col min-h-2/3 justify-center items-center">
     <div class="flex flex-col w-full max-w-sm gap-3">
       <h1 class="text-2xl font-bold">Sign Up</h1>
       <input v-model="name" @keyup.enter="submit" type="text" placeholder="Your Name" class="input w-full" />
