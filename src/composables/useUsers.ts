@@ -16,6 +16,8 @@ export type User = {
 
 const users = ref<User[]>([])
 
+const lastUpdated = ref<Date | null>(null)
+
 export const useUsers = () => {
   const { pb } = usePocketbase()
 
@@ -30,6 +32,7 @@ export const useUsers = () => {
       name: protoUser.name,
       questpoints: protoUser.questpoints,
     }))
+    lastUpdated.value = new Date()
   }
 
   function getUserById(id: string) {
@@ -37,7 +40,9 @@ export const useUsers = () => {
   }
 
   onMounted(() => {
-    pull()
+    if (users.value.length === 0 || !lastUpdated.value || (new Date().getTime() - lastUpdated.value.getTime()) > 10_000) {
+      pull()
+    }
   })
 
   return {
