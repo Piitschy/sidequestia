@@ -5,7 +5,7 @@ const filter = reactive({
   show: null as boolean | null,
   myQuests: false,
   myAcceptedQuests: false,
-  activeQuests: false,
+  activeQuests: true,
   search: '',
 })
 
