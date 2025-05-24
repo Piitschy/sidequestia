@@ -53,9 +53,9 @@ onMounted(() => {
     </TransitionGroup>
   </div>
   <AppBubble :show="filter.show || false">
-    <button class="transition-all min-w-24 btn btn-neutral join-item" :class="{'brightness-125':filter.myQuests}" @click="filter.myQuests = !filter.myQuests">My Quests</button>
-    <button class="transition-all min-w-24 btn bg-base-100 btn-outline join-item" :class="{'brightness-125':filter.activeQuests}" @click="filter.activeQuests = !filter.activeQuests">Active</button>
-    <button class="transition-all min-w-24 btn btn-success join-item" :class="{'brightness-125':filter.myAcceptedQuests}" @click="filter.myAcceptedQuests = !filter.myAcceptedQuests">Accepted</button>
+    <button class="transition-all min-w-24 btn btn-neutral join-item" :class="filter.myQuests?'brightness-125':'brightness-75'" @click="filter.myQuests = !filter.myQuests">My Quests</button>
+    <button class="transition-all min-w-24 btn bg-base-100 join-item" :class="filter.activeQuests?'brightness-125':'brightness-75'" @click="filter.activeQuests = !filter.activeQuests">Active</button>
+    <button class="transition-all min-w-24 btn btn-success join-item" :class="filter.myAcceptedQuests?'brightness-125':'brightness-75'" @click="filter.myAcceptedQuests = !filter.myAcceptedQuests">Accepted</button>
   </AppBubble>
 </template>
 
