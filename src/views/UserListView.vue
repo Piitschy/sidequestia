@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useParties } from '@/composables/useParties';
 import { usePocketbase } from '@/composables/usePocketbase';
 import { useUsers, type User } from '@/composables/useUsers';
 import { computed } from 'vue';
@@ -6,6 +7,7 @@ import { computed } from 'vue';
 
 const { pb } = usePocketbase();
 const { users } = useUsers();
+const {currParty} = useParties();
 
 const sortedUsers = computed(() => {
   return [...users.value].sort((a: User, b:User) => {
@@ -18,6 +20,7 @@ const sortedUsers = computed(() => {
 </script>
 
 <template>
+  <h1 class="text-3xl font-bold text-center mb-4">{{currParty?.name}}</h1>
   <div class="overflow-x-auto">
     <table class="table w-full">
       <thead>
@@ -33,5 +36,8 @@ const sortedUsers = computed(() => {
         </tr>
       </tbody>
     </table>
+  </div>
+  <div class="text-center mt-4">
+    <button class="btn btn-primary">Invition Code: {{currParty?.invite_code}}</button>
   </div>
 </template>

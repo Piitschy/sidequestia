@@ -23,6 +23,11 @@ async function logout() {
   }
 }
 
+router.beforeEach((to, from, next) => {
+  drawer.value = false; // Close the drawer on route change
+  next();
+});
+
 </script>
 
 <template>
