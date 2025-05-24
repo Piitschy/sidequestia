@@ -22,6 +22,7 @@ export type QuestSubscription = {
   id: string
   user: string
   status: 'pending' | 'done' | 'rejected'
+  paid_out: boolean
   quest: string
   proof?: string
   created: string
@@ -126,6 +127,22 @@ export const useQuests = () => {
     })
   }
 
+  async function payout(id: QuestSubscription['id']) {
+    pb.send('/api/v1/payout', {
+      method: 'POST',
+      body: {
+        subscription_id: id,
+      },
+    }).then(() => {
+      console.log('Payout successful')
+      notify('Payout successful', ToastType.success)
+      pull()
+    }).catch((err) => {
+      console.error(err)
+      notify('Payout failed', ToastType.error)
+    })
+  }
+
   async function quit(id: Quest['id']) {
     const sub = await questSubscriptionsCollection.getFirstListItem(`quest="${id}" && user="${pb.authStore.record?.id}"`)
     if (sub) {
@@ -198,5 +215,6 @@ export const useQuests = () => {
     uploadProof,
     deleteProof,
     rejectSubscription,
+    payout,
   }
 }

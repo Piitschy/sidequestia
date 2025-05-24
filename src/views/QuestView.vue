@@ -19,7 +19,7 @@ const { questId: id } = defineProps({
 });
 
 const router = useRouter();
-const { getQuest, accept, quit, done, remove, complete, rejectSubscription } = useQuests();
+const { getQuest, accept, quit, done, remove, complete, rejectSubscription, payout } = useQuests();
 const { users, getUserById } = useUsers();
 const { pb } = usePocketbase();
 const quest = ref<Quest>()
@@ -39,6 +39,11 @@ const iAmCreator = computed(() => {
   if (!quest.value) return false;
   const creatorId = quest.value.creator;
   return creatorId === pb.authStore.record?.id;
+});
+
+const anyDone = computed(() => {
+  if (!quest.value) return false;
+  return quest.value.subscriptions?.some((s) => s.status === 'done') || false;
 });
 
 const creator = computed(() => {
@@ -78,6 +83,19 @@ const action = async (action: 'accept' | 'quit' | 'done' | 'remove' | 'complete'
   await nextTick();
   setTimeout(async () => quest.value = await getQuest(questId), 300);
 };
+
+async function payoutSub(subId: string) {
+  if (!quest.value) return;
+  try {
+    await payout(subId);
+    notify('Payout successful!', ToastType.success);
+  } catch (error) {
+    notify('Payout failed: ' + error, ToastType.error);
+  } finally {
+    await nextTick();
+    setTimeout(async () => quest.value = await getQuest(quest.value!.id), 300);
+  }
+}
 
 const refresh = async () => {
   router.go(0)
@@ -134,7 +152,7 @@ const myProofUrl = ref<string | null>(null);
             @click="action('complete')">MARK AS COMPLETED</button>
         </TransistionExpand>
         <TransistionExpand>
-          <button v-if="quest.status == 'active'" class="btn btn-error w-full" @click="action('remove')">DELETE THIS
+          <button v-if="quest.status == 'active'" :disabled="anyDone" class="btn btn-error w-full" @click="action('remove')">DELETE THIS
             QUEST FOR EVER!!!</button>
         </TransistionExpand>
         <div v-if="(quest.subscriptions || []).length > 0">
@@ -144,18 +162,23 @@ const myProofUrl = ref<string | null>(null);
         <div v-for="subscription in quest.subscriptions" :key="subscription.id" class="flex flex-col
           gap-2">
           <div v-if="!subscription.proof || subscription.status == 'pending'" class="mx-auto max-w-[250px] w-full flex justify-between items-center">
+            <button v-if="quest.status != 'completed'" :disabled="subscription.status != 'done' || subscription.paid_out" class="btn btn-success btn-sm" @click="payoutSub(subscription.id)">
+              pay out
+            </button>
             <div class="text-sm text-center">
               {{ getUserById(subscription.user)?.name }}
             </div>
             <div class="">
-              {{ subscription.status }}
+              {{ subscription.paid_out?'paid early':subscription.status }}
             </div>
-            <button v-if="subscription.status == 'done' && quest.status != 'completed'" class="btn btn-error btn-sm"
-              @click="rejectSubscription(subscription.id).then(refresh)">reject</button>
+            <button v-if="quest.status != 'completed'" :disabled="subscription.status != 'done' || subscription.paid_out" class="btn btn-error btn-sm" @click="rejectSubscription(subscription.id).then(refresh)">
+              reject
+            </button>
           </div>
-          <div v-else-if="subscription.status == 'done'" class="mx-auto w-full flex gap-1 items-center">
-            <SubscriptionProof v-if="subscription.proof" :text="getUserById(subscription.user)?.name" :sub-id="subscription.id"/>
-            <button class="btn btn-error btn-sm h-20" v-if="quest.status != 'completed'" @click="rejectSubscription(subscription.id).then(refresh)">reject</button>
+          <div v-else-if="subscription.status == 'done' || subscription.paid_out" class="mx-auto w-full flex gap-1 items-center">
+            <button class="btn btn-success btn-sm h-20" v-if="quest.status != 'completed' && !subscription.paid_out" @click="payoutSub(subscription.id)">pay out</button>
+            <SubscriptionProof v-if="subscription.proof" :text="getUserById(subscription.user)?.name + (subscription.paid_out?' (paid early)':'')" :sub-id="subscription.id"/>
+            <button class="btn btn-error btn-sm h-20" v-if="quest.status != 'completed' && !subscription.paid_out" @click="rejectSubscription(subscription.id).then(refresh)">reject</button>
           </div>
           <div v-else-if="subscription.status == 'rejected'" class="mx-auto max-w-[250px] text-error w-full flex justify-between items-center">
             <div class="text-sm text-center">
@@ -179,10 +202,12 @@ const myProofUrl = ref<string | null>(null);
               receive your well-deserved SideQuestPoints :)</span>
           </TransistionExpand>
         </div>
+        <p v-else-if="iSubscribed && mySub?.paid_out" class="text-center text-lg text-success
+          brightness-90">The QuestMaster already paid you</p>
         <p v-else-if="iSubscribed" class="text-center text-lg text-success brightness-90">You have accepted this quest!</p>
       </TransistionExpand>
       <TransistionExpand>
-        <SubscriptionProof v-if="mySub && !(mySub.status == 'done' && iAmCreator)" :sub-id="mySub.id" v-model:myProofUrl="myProofUrl" />
+        <SubscriptionProof v-if="mySub && !(mySub.status == 'done' && iAmCreator) && !mySub.paid_out" :sub-id="mySub.id" v-model:myProofUrl="myProofUrl" />
       </TransistionExpand>
       <TransistionExpand>
         <div v-if="mySub?.status == 'rejected'" class="alert alert-error shadow-xl text-center flex justify-center">
@@ -199,7 +224,7 @@ const myProofUrl = ref<string | null>(null);
         </div>
       </TransistionExpand>
       <TransistionExpand>
-        <button v-if="iSubscribed && quest.status == 'active'" class="btn btn-error w-full"
+        <button v-if="iSubscribed && quest.status == 'active' && !mySub?.paid_out" class="btn btn-error w-full"
           @click="action('quit')">{{ iHaveDone ? 'REVOKE MY COMPLETION' : 'QUIT' }}</button>
       </TransistionExpand>
       <TransistionExpand>

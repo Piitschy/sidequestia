@@ -21,6 +21,7 @@ func main() {
 		g := se.Router.Group("/api/v1")
 		g.Bind(apis.RequireAuth())
 		g.POST("/accept-quest", AcceptQuestHandler)
+		g.POST("/payout", PayOutHandler)
 
 		return se.Next()
 	})
@@ -37,15 +38,21 @@ func main() {
 			Id string `db:"user"`
 		}
 		users := []UserId{}
-		e.App.DB().NewQuery("SELECT user FROM quest_subscriptions WHERE quest = {:quest} AND status = 'done'").Bind(dbx.Params{
-			"quest": e.Record.Id,
-		}).All(&users)
+		e.App.DB().
+			NewQuery("SELECT user FROM quest_subscriptions WHERE quest = {:quest} AND status = 'done' AND NOT paid_out").
+			Bind(dbx.Params{
+				"quest": e.Record.Id,
+			}).
+			All(&users)
 		for _, user := range users {
-			e.App.DB().NewQuery("UPDATE users SET questpoints = questpoints + {:sqp} WHERE id = {:id}").Bind(dbx.Params{
-				"sqp": e.Record.GetInt("questpoints"),
-				"id":  user.Id,
-			},
-			).Execute()
+			e.App.DB().
+				NewQuery("UPDATE users SET questpoints = questpoints + {:sqp} WHERE id = {:id}").
+				Bind(dbx.Params{
+					"sqp": e.Record.GetInt("questpoints"),
+					"id":  user.Id,
+				},
+				).
+				Execute()
 		}
 		return e.Next()
 	})
@@ -53,6 +60,53 @@ func main() {
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+type PayOutRequest struct {
+	SubscriptionID string `json:"subscription_id" form:"subscription_id" binding:"required"`
+}
+
+func PayOutHandler(e *core.RequestEvent) error {
+	body := &PayOutRequest{}
+	if err := e.BindBody(&body); err != nil {
+		return e.BadRequestError("Failed to read request data", err)
+	}
+
+	subscription, err := e.App.FindRecordById("quest_subscriptions", body.SubscriptionID)
+	if err != nil {
+		return e.BadRequestError("Failed to get subscription", err)
+	}
+
+	quest, err := e.App.FindRecordById("quests", subscription.GetString("quest"))
+	if err != nil {
+		return e.BadRequestError("Failed to find quest", err)
+	}
+
+	if subscription.GetString("status") != "done" {
+		return e.BadRequestError("Subscription is not done", nil)
+	}
+
+	// Set user's quest points
+	userId := subscription.GetString("user")
+	user, err := e.App.FindRecordById("users", userId)
+	if err != nil {
+		return e.BadRequestError("Failed to find user", err)
+	}
+	questPoints := quest.GetInt("questpoints")
+	// Update the user's quest points
+	user.Set("questpoints", user.GetInt("questpoints")+questPoints)
+	if err := e.App.Save(user); err != nil {
+		return e.BadRequestError("Failed to update user quest points", err)
+	}
+
+	// Update the subscription status to paid
+	subscription.Set("paid_out", true)
+	if err := e.App.Save(subscription); err != nil {
+		return e.BadRequestError("Failed to update subscription status", err)
+	}
+
+	// Return a success response
+	return e.JSON(http.StatusOK, map[string]any{"success": true})
 }
 
 type AcceptQuestRequest struct {
@@ -83,10 +137,13 @@ func AcceptQuestHandler(e *core.RequestEvent) error {
 	}
 
 	// Check if the user is already subscribed to the quest
-	err = e.App.DB().NewQuery("SELECT * FROM quest_subscriptions WHERE quest = {:quest} AND user = {:user}").Bind(dbx.Params{
-		"quest": quest.Id,
-		"user":  e.Auth.Id,
-	}).One(&core.Record{})
+	err = e.App.DB().
+		NewQuery("SELECT * FROM quest_subscriptions WHERE quest = {:quest} AND user = {:user}").
+		Bind(dbx.Params{
+			"quest": quest.Id,
+			"user":  e.Auth.Id,
+		}).
+		One(&core.Record{})
 	if err == nil {
 		return e.BadRequestError("User is already subscribed to the quest", nil)
 	}
