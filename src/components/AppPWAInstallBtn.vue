@@ -20,9 +20,13 @@ const themeStore = useThemeStore();
 
 onMounted(() => {
   setTimeout(() => {
-    if (!themeStore.askedForInstall && installPrompt.value) {
+    if ((
+      !themeStore.askedForInstall
+        || themeStore.askedForInstall < new Date(Date.now() - 1000 * 60 * 60 * 24 * 3)) // 3 days
+      && installPrompt.value
+    ) {
       installPrompt.value?.prompt()
-      themeStore.askedForInstall = true;
+      themeStore.askedForInstall = new Date()
     }
   }, 3000)
 });
