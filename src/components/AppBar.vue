@@ -4,6 +4,7 @@ import { titlecase } from '@/utils/strings';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import AppThemeSelector from './AppThemeSelector.vue';
 import { useRouter } from 'vue-router';
+import AppPWAInstallBtn from './AppPWAInstallBtn.vue';
 
 const drawer = defineModel('drawer', {
   default: false,
@@ -40,6 +41,7 @@ router.beforeEach((to, from, next) => {
   <div class="flex-1">
       <a class="btn btn-ghost text-xl">{{titlecase(drawer ? 'Parties' : $route.name?.toString() || 'SideQuestia')}}</a>
   </div>
+  <AppPWAInstallBtn />
   <AppThemeSelector />
   <div class="flex-none">
     <button class="btn btn-square btn-ghost" popovertarget="popover-1" style="anchor-name:--anchor-1">
