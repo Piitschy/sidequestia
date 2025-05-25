@@ -208,7 +208,7 @@ const rm = () => {
           </div>
           <div v-if="(quest.subscriptions || []).length > 0 && !iAmCreator">
             <div class="divider">Adventurers</div>
-            <p class="text-center text-sm opacity-60 mb-3">You can see all adventurer to this quest here.</p>
+            <p class="text-center text-sm opacity-60 mb-3">All glory to the adventurers who completed this quest:</p>
             <div v-for="subscription in quest.subscriptions?.filter(s => ['done', 'rejected'].includes(s.status)).sort((a,b) => a.proof?1:-1)" :key="subscription.id" class="flex flex-col gap-2">
               <div v-if="!subscription.proof" class="mx-auto max-w-[250px] w-full flex
                 justify-between items-center my-1" :class="{ 'text-error': subscription.status == 'rejected' }">
