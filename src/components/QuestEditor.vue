@@ -37,7 +37,7 @@ const toolbarOptions = [
   ['clean']                                         // remove formatting button
 ];
 
-const raw = ref(false)
+const raw = ref(true)
 </script>
 
 <template>
