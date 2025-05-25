@@ -43,13 +43,10 @@ const raw = ref(true)
 <template>
   <div class="flex flex-col max-w-xl mx-auto justify-center items-center gap-3">
     <input v-model="title" type="text" placeholder="Title" class="input w-full" />
-    <label class="label">
-      <span class="label-text text-base-content">Write your quest text here:</span>
-    </label>
-    <QuillEditor v-if="!raw" v-model:content="description" content-type="html" class="textarea w-full overflow-hidden" theme="snow" :toolbar="toolbarOptions"></QuillEditor>
-    <button class="btn btn-outline" @click="raw = !raw">
-      switch to <span v-if="raw">wysiwyg-editor</span><span v-else>raw html</span>
+    <button class="btn btn-outline w-full" @click="raw = !raw">
+      switch to<span v-if="raw">wysiwyg-editor</span><span v-else>raw html</span>
     </button>
+    <QuillEditor v-if="!raw" v-model:content="description" content-type="html" class="textarea w-full overflow-hidden" theme="snow" :toolbar="toolbarOptions"></QuillEditor>
     <textarea v-if="raw" ref="textarea" v-model="description" class="textarea w-full overflow-hidden" placeholder="Description"></textarea>
     <input
       v-model="questpoints"
