@@ -130,7 +130,7 @@ const rm = () => {
         </h2>
         <div class="text-xs text-center mx-auto">{{ quest.created.slice(0, 16) }}</div>
       </div>
-      <div class="my-5" v-html="quest?.description" />
+      <div class="my-5 ql-container ql-editor" v-html="quest?.description" />
       <div class="stats text-center shadow w-full bg-base-100">
         <div class="stat">
           <div class="stat-title">SQ-Points</div>
