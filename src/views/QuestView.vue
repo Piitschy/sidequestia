@@ -130,7 +130,7 @@ const rm = () => {
         </h2>
         <div class="text-xs text-center mx-auto">{{ quest.created.slice(0, 16) }}</div>
       </div>
-      <div class="my-5" v-html="quest?.description" />
+      <div class="my-5 ql-container ql-editor" v-html="quest?.description" />
       <div class="stats text-center shadow w-full bg-base-100">
         <div class="stat">
           <div class="stat-title">SQ-Points</div>
@@ -208,7 +208,7 @@ const rm = () => {
           </div>
           <div v-if="(quest.subscriptions || []).length > 0 && !iAmCreator">
             <div class="divider">Adventurers</div>
-            <p class="text-center text-sm opacity-60 mb-3">You can see all adventurer to this quest here.</p>
+            <p class="text-center text-sm opacity-60 mb-3">All glory to the adventurers who completed this quest:</p>
             <div v-for="subscription in quest.subscriptions?.filter(s => ['done', 'rejected'].includes(s.status)).sort((a,b) => a.proof?1:-1)" :key="subscription.id" class="flex flex-col gap-2">
               <div v-if="!subscription.proof" class="mx-auto max-w-[250px] w-full flex
                 justify-between items-center my-1" :class="{ 'text-error': subscription.status == 'rejected' }">
@@ -229,12 +229,10 @@ const rm = () => {
           text-center flex flex-col justify-center">
           <span class="text-lg">You have completed this quest!</span>
           <TransistionExpand>
-            <span v-if="completed" class="text-base">As soon as the creator marks this quest as completed, you will
-              receive your well-deserved SideQuestPoints :)</span>
+            <span v-if="mySub?.paid_out" class="text-base">The QuestMaster already paid you</span>
+            <span v-else-if="completed" class="text-base">As soon as the creator marks this quest as completed, you will receive your well-deserved SideQuestPoints :)</span>
           </TransistionExpand>
         </div>
-        <p v-else-if="iSubscribed && mySub?.paid_out" class="text-center text-lg text-success
-          brightness-90">The QuestMaster already paid you</p>
         <p v-else-if="iSubscribed" class="text-center text-lg text-success brightness-90">You have accepted this quest!</p>
       </TransistionExpand>
       <TransistionExpand>
