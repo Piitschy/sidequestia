@@ -202,8 +202,28 @@ const rm = () => {
         </div>
       </div>
       <TransistionExpand>
-        <div v-if="quest.status == 'completed'" class="alert alert-success shadow-xl text-center flex justify-center">
-          <span class="text-lg text-pretty">This quest has been marked as completed by the creator!</span>
+        <div v-if="quest.status == 'completed'">
+          <div class="alert alert-success shadow-xl text-center flex justify-center">
+            <span class="text-lg">This quest has been completed!</span>
+          </div>
+          <div v-if="(quest.subscriptions || []).length > 0 && !iAmCreator">
+            <div class="divider">Adventurers</div>
+            <p class="text-center text-sm opacity-60 mb-3">You can see all adventurer to this quest here.</p>
+            <div v-for="subscription in quest.subscriptions?.filter(s => ['done', 'rejected'].includes(s.status)).sort((a,b) => a.proof?1:-1)" :key="subscription.id" class="flex flex-col gap-2">
+              <div v-if="!subscription.proof" class="mx-auto max-w-[250px] w-full flex
+                justify-between items-center my-1" :class="{ 'text-error': subscription.status == 'rejected' }">
+                <div class="text-sm text-center">
+                  {{ getUserById(subscription.user)?.name }}
+                </div>
+                <div>
+                  {{ subscription.status }}
+                </div>
+              </div>
+              <div v-else class="mx-auto w-full flex gap-1 items-center">
+                <SubscriptionProof v-if="subscription.proof" :text="getUserById(subscription.user)?.name + (subscription.paid_out?' (paid early)':'')" :sub-id="subscription.id"/>
+              </div>
+            </div>
+          </div>
         </div>
         <div v-else-if="iHaveDone && quest.status == 'active'" class="alert alert-success shadow-xl
           text-center flex flex-col justify-center">
@@ -218,7 +238,7 @@ const rm = () => {
         <p v-else-if="iSubscribed" class="text-center text-lg text-success brightness-90">You have accepted this quest!</p>
       </TransistionExpand>
       <TransistionExpand>
-        <SubscriptionProof v-if="mySub && !(mySub.status == 'done' && iAmCreator) && !mySub.paid_out" :sub-id="mySub.id" v-model:myProofUrl="myProofUrl" />
+        <SubscriptionProof v-if="mySub && !(mySub.status == 'done' && iAmCreator) && !mySub.paid_out && quest.status != 'completed'" :sub-id="mySub.id" v-model:myProofUrl="myProofUrl" />
       </TransistionExpand>
       <TransistionExpand>
         <div v-if="mySub?.status == 'rejected'" class="alert alert-error shadow-xl text-center flex justify-center">

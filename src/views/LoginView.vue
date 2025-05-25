@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { usePocketbase } from '@/composables/usePocketbase';
 import { ToastType, useToasterStore } from '@/stores/toaster';
-import { onMounted, ref, useTemplateRef } from 'vue';
+import { nextTick, onMounted, ref, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';
 
 const mailInput = useTemplateRef("mail-input");
 const router = useRouter();
 
-const { login } = usePocketbase();
+const { login, pb } = usePocketbase();
 const { notify } = useToasterStore();
 
 const email = ref('');
@@ -29,8 +29,13 @@ function submit() {
     });
 }
 
-onMounted(() => {
+
+onMounted(async () => {
   mailInput.value?.focus();
+  await nextTick();
+  if (pb.authStore.isValid) {
+    router.push('/');
+  }
 });
 </script>
 
