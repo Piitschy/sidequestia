@@ -229,12 +229,10 @@ const rm = () => {
           text-center flex flex-col justify-center">
           <span class="text-lg">You have completed this quest!</span>
           <TransistionExpand>
-            <span v-if="completed" class="text-base">As soon as the creator marks this quest as completed, you will
-              receive your well-deserved SideQuestPoints :)</span>
+            <span v-if="mySub?.paid_out" class="text-base">The QuestMaster already paid you</span>
+            <span v-else-if="completed" class="text-base">As soon as the creator marks this quest as completed, you will receive your well-deserved SideQuestPoints :)</span>
           </TransistionExpand>
         </div>
-        <p v-else-if="iSubscribed && mySub?.paid_out" class="text-center text-lg text-success
-          brightness-90">The QuestMaster already paid you</p>
         <p v-else-if="iSubscribed" class="text-center text-lg text-success brightness-90">You have accepted this quest!</p>
       </TransistionExpand>
       <TransistionExpand>
