@@ -1,4 +1,5 @@
 import PocketBase from 'pocketbase';
+import { nextTick } from 'vue';
 
 const pb = new PocketBase(import.meta.env.VITE_API_URL || "__API_URL__");
 pb.autoCancellation(false);
@@ -22,6 +23,8 @@ export const usePocketbase = () => {
         passwordConfirm,
         name,
       });
+      await nextTick();
+      await pb.collection('users').authWithPassword(email, password);
       return userData;
     } catch (error) {
       console.error('Registration failed:', error);
