@@ -78,7 +78,8 @@ const router = createRouter({
       component: JoinPartyView,
       meta: {
         dock: false,
-        icon: "ic:outline-supervised-user-circle"
+        icon: "ic:outline-supervised-user-circle",
+        allowAnonymous: true,
       }
     },
     {
@@ -88,7 +89,8 @@ const router = createRouter({
       component: JoinPartyView,
       meta: {
         dock: false,
-        icon: "ic:outline-supervised-user-circle"
+        icon: "ic:outline-supervised-user-circle",
+        allowAnonymous: true,
       }
     },
     {
@@ -97,6 +99,7 @@ const router = createRouter({
       component: LoginView,
       meta: {
         hideDock: true,
+        allowAnonymous: true,
       }
     },
     {
@@ -105,6 +108,7 @@ const router = createRouter({
       component: () => import('@/views/RegisterView.vue'),
       meta: {
         hideDock: true,
+        allowAnonymous: true,
       }
     }
   ],

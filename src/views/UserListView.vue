@@ -82,6 +82,10 @@ const leave = () => {
       </tbody>
     </table>
   </div>
+  <div v-else class="text-center">
+    <p class="text-lg">You are not in a party yet.</p>
+    <p class="text-sm">Join or create a party to see the user list.</p>
+  </div>
   <div v-if="currParty?.id" class="text-center flex flex-col justify-around gap-5 mt-4">
     <button class="btn btn-success" @click="share">Invition Code: {{currParty?.invite_code}}</button>
     <button class="btn btn-error" @click="tapCount?tapCount--:leave()">{{tapCount?`Click ${tapCount} times to leave party`:'LEAVE PARTY'}}</button>
