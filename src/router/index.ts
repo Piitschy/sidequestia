@@ -1,13 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/LoginView.vue'
 import QuestsView from '@/views/QuestsView.vue'
-import QuestView from '@/views/QuestView.vue'
-import SubscriptionsView from '@/views/SubscriptionsView.vue'
-import NewQuestView from '@/views/NewQuestView.vue'
-import EditQuestView from '@/views/EditQuestView.vue'
-import UserListView from '@/views/UserListView.vue'
-import NewPartyView from '@/views/NewPartyView.vue'
-import JoinPartyView from '@/views/JoinPartyView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,7 +9,7 @@ const router = createRouter({
       path: '/quests/new',
       name: 'new quest',
       props: true,
-      component: NewQuestView,
+      component: () => import('@/views/NewQuestView.vue'),
       meta: {
         dock: true,
         icon: "ic:baseline-add-circle"
@@ -35,13 +28,13 @@ const router = createRouter({
       path: '/quests/:questId/edit',
       name: 'edit quest',
       props: true,
-      component: EditQuestView,
+      component: () => import('@/views/EditQuestView.vue'),
     },
     {
       path: '/quests/:questId',
       name: 'quest',
       props: true,
-      component: QuestView,
+      component: () => import('@/views/QuestView.vue'),
     },
     // {
     //   path: '/subs',
@@ -55,7 +48,7 @@ const router = createRouter({
     {
       path: '/party',
       name: 'party',
-      component: UserListView,
+      component: () => import('@/views/UserListView.vue'),
       meta: {
         dock: true,
         icon: "ic:outline-supervised-user-circle"
@@ -65,7 +58,7 @@ const router = createRouter({
       path: '/party/new',
       name: 'new party',
       props: true,
-      component: NewPartyView,
+      component: () => import('@/views/NewPartyView.vue'),
       meta: {
         dock: false,
         icon: "ic:outline-supervised-user-circle"
@@ -75,7 +68,7 @@ const router = createRouter({
       path: '/party/join/:inviteCode',
       name: 'join party with code',
       props: true,
-      component: JoinPartyView,
+      component: () => import('@/views/JoinPartyView.vue'),
       meta: {
         dock: false,
         icon: "ic:outline-supervised-user-circle",
@@ -86,7 +79,7 @@ const router = createRouter({
       path: '/party/join',
       name: 'join party',
       props: true,
-      component: JoinPartyView,
+      component: () => import('@/views/JoinPartyView.vue'),
       meta: {
         dock: false,
         icon: "ic:outline-supervised-user-circle",
