@@ -45,7 +45,7 @@ router.beforeEach((to, from, next) => {
   <AppThemeSelector />
   <div class="flex-none">
     <button class="btn btn-square btn-ghost" popovertarget="popover-1" style="anchor-name:--anchor-1">
-      <Icon icon="ic:outline-more-horiz" width="24" />
+      <Icon icon="ic:outline-account-circle" width="24" />
     </button>
     <ul class="dropdown dropdown-end menu w-52 rounded-box bg-base-100 shadow-sm"
       popover id="popover-1" style="position-anchor:--anchor-1">
