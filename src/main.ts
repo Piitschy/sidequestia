@@ -21,3 +21,4 @@ app.use(router)
 app.component('QuillEditor', QuillEditor)
 
 app.mount('#app')
+
