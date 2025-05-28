@@ -43,8 +43,6 @@ const subscribeToPush = async () => {
     applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
   })
 
-  console.log('Push-Abo:', subscription)
-
   // 5. Subscription an PocketBase senden
   await pb.collection('push_subscriptions').create({
     endpoint: subscription.endpoint,
