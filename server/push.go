@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/SherClockHolmes/webpush-go"
 )
@@ -37,9 +38,9 @@ func sendPush(subscription Subscription, title, body, url string) error {
 	// Push senden
 	resp, err := webpush.SendNotification(jsonPayload, sub, &webpush.Options{
 		TTL:             60,
-		Subscriber:      "example@example.com",
-		VAPIDPublicKey:  "<YOUR_VAPID_PUBLIC_KEY>",
-		VAPIDPrivateKey: "<YOUR_VAPID_PRIVATE_KEY>",
+		Subscriber:      os.Getenv("VAPID_SUBSCRIBER"),
+		VAPIDPublicKey:  os.Getenv("VAPID_PUBLIC_KEY"),
+		VAPIDPrivateKey: os.Getenv("VAPID_PRIVATE_KEY"),
 	})
 	if err != nil {
 		return err

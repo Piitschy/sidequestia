@@ -4,6 +4,7 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue'
 
 const { pb } = usePocketbase();
+const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || "__API_URL__";
 
 const isSubscribed = ref(false)
 
@@ -27,7 +28,7 @@ const subscribeToPush = async () => {
   // 4. Push-Abo registrieren (mit VAPID Public Key von deinem Server)
   const subscription = await swReg.pushManager.subscribe({
     userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array('<DEIN_VAPID_PUBLIC_KEY>')
+    applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
   })
 
   // 5. Subscription an PocketBase senden

@@ -7,6 +7,9 @@ services:
       CORS_ENABLED: "true"
       CORS_ORIGIN: "https://${DOMAIN_NAME},https://stage.${DOMAIN_NAME},${CORS_ORIGIN}"
       PUBLIC_URL: "https://pb.${DOMAIN_NAME}"
+      VAPID_SUBSCRIBER: "${VAPID_SUBSCRIBER}"
+      VAPID_PUBLIC_KEY: "${VAPID_PUBLIC_KEY}"
+      VAPID_PRIVATE_KEY: "${VAPID_PRIVATE_KEY}"
 
     networks:
       - traefik-public
@@ -26,6 +29,7 @@ services:
       - pocketbase
     environment:
       - API_URL=https://pb.${DOMAIN_NAME}
+      - VAPID_PUBLIC_KEY=${PUBLIC_KEY}
     networks:
       - traefik-public
     deploy:
@@ -44,6 +48,7 @@ services:
       - pocketbase
     environment:
       - API_URL=https://pb.${DOMAIN_NAME}
+      - VAPID_PUBLIC_KEY=${PUBLIC_KEY}
     networks:
       - traefik-public
     deploy:
