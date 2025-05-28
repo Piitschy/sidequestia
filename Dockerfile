@@ -12,6 +12,7 @@ COPY --from=lock /tmp/yarn.lock /tmp/package.json ./
 RUN yarn install
 COPY . .
 ENV VITE_API_URL=https://pb.sidequestia.de
+ENV VITE_VAPID_PUBLIC_KEY=BE3Wp-b9g_u0qsPBSqjxupAwQBTsMTtVcwf1wlT4h63gQc5c9OI_iZBxkbCrv352XdcJN21gOOSzpHuawXIKkOw
 RUN yarn build
 
 FROM nginx:stable-alpine AS production
