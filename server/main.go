@@ -103,8 +103,7 @@ func main() {
 
 		for _, sub := range pushSubs {
 			// Notification-Payload inkl. URL
-			fmt.Println("Sending push notification to %s\n", sub.Endpoint)
-			SendPush(
+			err = SendPush(
 				sub,
 				"New Quest Available",
 				fmt.Sprintf(
@@ -113,6 +112,10 @@ func main() {
 				),
 				"/quests/"+e.Record.Id,
 			)
+			if err != nil {
+				log.Printf("Failed to send push notification to %s: %v", sub.Endpoint, err)
+				continue
+			}
 		}
 
 		return e.Next()
