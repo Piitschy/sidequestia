@@ -1,10 +1,22 @@
 <script setup lang="ts">
 import { usePocketbase } from '@/composables/usePocketbase'
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const { pb } = usePocketbase();
 const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || "__VAPID_PUBLIC_KEY__";
+
+onMounted(() => {
+  console.log('VAPID Public Key:', vapidPublicKey);
+  // Prüfen, ob der Nutzer bereits abonniert ist
+  pb.collection('push_subscriptions').getList(1, 1, {
+    filter: `user="${pb.authStore.record?.id || ''}"`,
+  }).then((res) => {
+    isSubscribed.value = res.items.length > 0;
+  }).catch((error) => {
+    console.error('Fehler beim Überprüfen des Abos:', error);
+  });
+})
 
 const isSubscribed = ref(false)
 
