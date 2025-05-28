@@ -15,9 +15,14 @@ export default defineConfig({
     vueDevTools(),
     tailwindcss(),
     VitePWA({
+      strategies: 'injectManifest',
+      injectManifest: {
+        injectionPoint: undefined,
+      },
       registerType: 'autoUpdate',
       injectRegister: 'script',
       filename: 'sw.js',
+      srcDir: 'src',
       manifest: {
         name: 'SideQuestia',
         short_name: 'SideQuestia',
