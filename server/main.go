@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -72,6 +73,46 @@ func main() {
 				continue
 			}
 		}
+		return e.Next()
+	})
+
+	app.OnRecordAfterCreateSuccess("quests").BindFunc(func(e *core.RecordEvent) error {
+		partyId := e.Record.GetString("party")
+
+		pushSubs := []PushSubscription{}
+		err := e.App.DB().
+			NewQuery("SELECT ps.endpoint as endpoint, ps.auth as auth, ps.p256dh as p256dh FROM push_subscriptions ps LEFT JOIN party_users pu ON pu.user = ps.user WHERE pu.party = {:party}").
+			Bind(dbx.Params{
+				"party": partyId,
+			}).
+			All(&pushSubs)
+
+		if err != nil {
+			log.Printf("Failed to get push subscriptions for party %s: %v", partyId, err)
+			return e.Next()
+		}
+
+		fmt.Println(
+			"Found %d push subscriptions for party %s\n",
+			len(pushSubs),
+			partyId,
+			pushSubs,
+		)
+
+		for _, sub := range pushSubs {
+			// Notification-Payload inkl. URL
+			fmt.Println("Sending push notification to %s\n", sub.Endpoint)
+			SendPush(
+				sub,
+				"New Quest Available",
+				fmt.Sprintf(
+					"A new quest '%s' is available in your party.",
+					e.Record.GetString("title"),
+				),
+				"/quests/"+e.Record.Id,
+			)
+		}
+
 		return e.Next()
 	})
 

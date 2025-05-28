@@ -42,8 +42,8 @@ router.beforeEach((to, from, next) => {
   <div class="flex-1">
       <a class="btn btn-ghost text-xl">{{titlecase(drawer ? 'Parties' : $route.name?.toString() || 'SideQuestia')}}</a>
   </div>
-  <AppNotificationBtn />
   <AppPWAInstallBtn />
+  <AppNotificationBtn />
   <AppThemeSelector />
   <div class="flex-none">
     <button class="btn btn-square btn-ghost" popovertarget="popover-1" style="anchor-name:--anchor-1">

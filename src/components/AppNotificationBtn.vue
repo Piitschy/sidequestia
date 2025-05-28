@@ -46,11 +46,8 @@ const subscribeToPush = async () => {
   // 5. Subscription an PocketBase senden
   await pb.collection('push_subscriptions').create({
     endpoint: subscription.endpoint,
-    keys: {
-      auth: subscription.toJSON().keys?.auth,
-      p256dh: subscription.toJSON().keys?.p256dh
-    },
-    // optional: user-id, falls du angemeldet bist
+    auth: subscription.toJSON().keys?.auth,
+    p256dh: subscription.toJSON().keys?.p256dh,
     user: pb.authStore.record?.id || undefined
   })
 
@@ -68,7 +65,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 </script>
 
 <template>
-  <button class="btn" @click="subscribeToPush">
+  <button class="btn btn-ghost" @click="subscribeToPush">
     <Icon :icon="isSubscribed?'ic:outline-notifications-active':'ic:outline-notifications'" width="24" />
   </button>
 </template>

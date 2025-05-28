@@ -9,15 +9,13 @@ import (
 	"github.com/SherClockHolmes/webpush-go"
 )
 
-type Subscription struct {
+type PushSubscription struct {
 	Endpoint string `db:"endpoint"`
-	Keys     struct {
-		Auth   string `db:"auth"`
-		P256dh string `db:"p256dh"`
-	} `db:"keys"`
+	Auth     string `db:"auth"`
+	P256dh   string `db:"p256dh"`
 }
 
-func sendPush(subscription Subscription, title, body, url string) error {
+func SendPush(subscription PushSubscription, title, body, url string) error {
 	// Notification-Payload inkl. URL
 	payload := map[string]string{
 		"title": title,
@@ -30,8 +28,8 @@ func sendPush(subscription Subscription, title, body, url string) error {
 	sub := &webpush.Subscription{
 		Endpoint: subscription.Endpoint,
 		Keys: webpush.Keys{
-			Auth:   subscription.Keys.Auth,
-			P256dh: subscription.Keys.P256dh,
+			Auth:   subscription.Auth,
+			P256dh: subscription.P256dh,
 		},
 	}
 
