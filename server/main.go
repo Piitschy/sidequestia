@@ -1,12 +1,14 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strings"
 
+	"github.com/SherClockHolmes/webpush-go"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
@@ -315,4 +317,46 @@ func AcceptQuestHandler(e *core.RequestEvent) error {
 
 	// Return a success response
 	return e.JSON(http.StatusOK, map[string]any{"success": true, "subscription_id": sub.Id})
+}
+
+type PushSubscription struct {
+	Endpoint string `db:"endpoint"`
+	Auth     string `db:"auth"`
+	P256dh   string `db:"p256dh"`
+}
+
+func SendPush(subscription PushSubscription, title, body, url string) error {
+	// Notification-Payload inkl. URL
+	payload := map[string]string{
+		"title": title,
+		"body":  body,
+		"url":   url,
+	}
+	jsonPayload, _ := json.Marshal(payload)
+
+	// WebPush-Abo
+	sub := &webpush.Subscription{
+		Endpoint: subscription.Endpoint,
+		Keys: webpush.Keys{
+			Auth:   subscription.Auth,
+			P256dh: subscription.P256dh,
+		},
+	}
+
+	// Push senden
+	resp, err := webpush.SendNotification(jsonPayload, sub, &webpush.Options{
+		TTL:             60,
+		Subscriber:      os.Getenv("VAPID_SUBSCRIBER"),
+		VAPIDPublicKey:  os.Getenv("VAPID_PUBLIC_KEY"),
+		VAPIDPrivateKey: os.Getenv("VAPID_PRIVATE_KEY"),
+	})
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusGone || resp.StatusCode == http.StatusNotFound {
+		log.Println("Push-Abo nicht mehr gültig:", subscription.Endpoint)
+		// optional: aus DB löschen
+	}
+	return nil
 }
