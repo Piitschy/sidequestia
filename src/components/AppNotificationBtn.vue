@@ -34,6 +34,7 @@ const subscribeToPush = async () => {
     return
   }
 
+
   // 3. Service Worker muss bereit sein
   const swReg = await navigator.serviceWorker.ready
 
@@ -52,7 +53,10 @@ const subscribeToPush = async () => {
   })
 
   isSubscribed.value = true
-  alert('Push-Abo erfolgreich!')
+  new Notification('PocketBase Push', {
+    body: 'You have successfully activated push notifications!',
+    icon: '/favicon.ico'
+  })
 }
 
 // Hilfsfunktion: Base64 in Uint8Array

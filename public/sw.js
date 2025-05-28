@@ -1,17 +1,18 @@
 
 self.addEventListener('push', event => {
   let data = {}
+  console.log('Push event received:', event)
   try {
     data = event.data?.json() || {}
   } catch (e) {
-    console.warn('Fehler beim Parsen des Push-Datenformats:', e)
+    console.warn('Error parsing push event data:', e)
   }
 
-  const title = data.title || 'Neue Benachrichtigung'
+  const title = data.title || 'New Notification'
   const options = {
     body: data.body || '',
-    icon: '/pwa-192x192.png',
-    badge: '/pwa-maskable-192x192.png', // optional
+    icon: '/favicon.ico',
+    badge: '/favicon.ico', // optional
     data: data.url ? { url: data.url } : {},
   }
 

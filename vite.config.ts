@@ -16,6 +16,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'script',
       filename: 'sw.js',
       manifest: {
         name: 'SideQuestia',
