@@ -4,7 +4,7 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import { ref } from 'vue'
 
 const { pb } = usePocketbase();
-const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || "__API_URL__";
+const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || "__VAPID_PUBLIC_KEY__";
 
 const isSubscribed = ref(false)
 
