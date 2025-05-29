@@ -34,8 +34,6 @@ const subscribeToPush = async () => {
     return
   }
 
-  console.log('Benachrichtigungen erlaubt:', urlBase64ToUint8Array(vapidPublicKey).length)
-
   // 3. Service Worker muss bereit sein
   const swReg = await navigator.serviceWorker.ready
 
