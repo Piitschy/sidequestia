@@ -19,19 +19,11 @@ import (
 func main() {
 	app := pocketbase.New()
 
-	app.Logger().Info("Starting PocketBase server...")
-	app.Logger().Info("Public VAPID Key:", os.Getenv("VAPID_PUBLIC_KEY"))
+	app.Logger().Error("Public VAPID Key:", os.Getenv("VAPID_PUBLIC_KEY"))
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)
 		se.Router.GET("/{path...}", apis.Static(os.DirFS("./pb_public"), false))
-		se.Router.GET("/public-key", func(e *core.RequestEvent) error {
-			// Return the public VAPID key
-			return e.JSON(http.StatusOK, map[string]string{
-				"public_key": os.Getenv("VAPID_PUBLIC_KEY"),
-			})
-		})
-
 		g := se.Router.Group("/api/v1")
 		g.Bind(apis.RequireAuth())
 		g.POST("/accept-quest", AcceptQuestHandler)
