@@ -19,6 +19,9 @@ import (
 func main() {
 	app := pocketbase.New()
 
+	app.Logger().Info("Starting PocketBase server...")
+	app.Logger().Info("Public VAPID Key:", os.Getenv("VAPID_PUBLIC_KEY"))
+
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)
 		se.Router.GET("/{path...}", apis.Static(os.DirFS("./pb_public"), false))
