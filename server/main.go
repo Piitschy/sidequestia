@@ -333,23 +333,25 @@ func SendPush(subscription PushSubscription, title, body, url string) error {
 	payload := map[string]string{
 		"title": title,
 		"body":  body,
-		"url":   url,
 	}
 	jsonPayload, _ := json.Marshal(payload)
 
-	// WebPush-Abo
-	sub := &webpush.Subscription{
-		Endpoint: subscription.Endpoint,
-		Keys: webpush.Keys{
-			Auth:   subscription.Auth,
-			P256dh: subscription.P256dh,
-		},
-	}
+	ss := fmt.Sprintf(
+		`{"endpoint":"%s","expirationTime":null,"keys":{"auth":"%s","p256dh":"%s"}}`,
+		subscription.Endpoint,
+		subscription.Auth,
+		subscription.P256dh,
+	)
+
+	fmt.Println("Push Subscription:", ss)
+
+	s := &webpush.Subscription{}
+	json.Unmarshal([]byte(ss), s)
 
 	// Push senden
-	resp, err := webpush.SendNotification(jsonPayload, sub, &webpush.Options{
-		TTL:             60,
-		Subscriber:      os.Getenv("VAPID_SUBSCRIBER"),
+	resp, err := webpush.SendNotification(jsonPayload, s, &webpush.Options{
+		TTL:             30,
+		Subscriber:      "example@example.com",
 		VAPIDPublicKey:  os.Getenv("VAPID_PUBLIC_KEY"),
 		VAPIDPrivateKey: os.Getenv("VAPID_PRIVATE_KEY"),
 	})
