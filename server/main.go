@@ -44,7 +44,7 @@ func main() {
 			log.Printf("Failed to find quest with ID %s: %v", questId, err)
 			return e.Next()
 		}
-		creatorId := e.Record.GetString("creator")
+		creatorId := quest.GetString("creator")
 		if e.Record.GetString("status") == "done" {
 			// Notify the user who created the subscription that the quest is done
 			err = NotifyUserOnQuest(
@@ -70,6 +70,27 @@ func main() {
 				log.Printf("Failed to notify user %s about proof submission: %v", creatorId, err)
 			}
 		}
+		return e.Next()
+	})
+
+	app.OnRecordAfterCreateSuccess("quest_subscriptions").BindFunc(func(e *core.RecordEvent) error {
+		questId := e.Record.GetString("quest")
+		quest, err := e.App.FindRecordById("quests", questId)
+		if err != nil {
+			log.Printf("Failed to find quest with ID %s: %v", questId, err)
+			return e.Next()
+		}
+		creatorId := quest.GetString("creator")
+		err = NotifyUserOnQuest(
+			e.App,
+			creatorId,
+			questId,
+			"New Adventurer",
+			fmt.Sprintf(
+				"Your quest '%s' has a new adventurer.",
+				quest.GetString("title"),
+			),
+		)
 		return e.Next()
 	})
 
