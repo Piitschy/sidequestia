@@ -19,8 +19,6 @@ import (
 func main() {
 	app := pocketbase.New()
 
-	app.Logger().Error("Public VAPID Key:", os.Getenv("VAPID_PUBLIC_KEY"))
-
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)
 		se.Router.GET("/{path...}", apis.Static(os.DirFS("./pb_public"), false))
@@ -29,6 +27,12 @@ func main() {
 		g.POST("/accept-quest", AcceptQuestHandler)
 		g.POST("/payout", PayOutHandler)
 		g.POST("/join-party", JoinPartyHandler)
+		g.GET("/vapid-public-key", func(c *core.RequestEvent) error {
+			// Return the VAPID public key
+			return c.JSON(http.StatusOK, map[string]string{
+				"vapid_public_key": os.Getenv("VAPID_PUBLIC_KEY"),
+			})
+		})
 
 		return se.Next()
 	})
