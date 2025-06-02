@@ -22,24 +22,6 @@ onMounted(() => {
 const isSubscribed = ref(false)
 
 const subscribeToPush = async () => {
-  if (isSubscribed.value) {
-    try {
-      const subs = await pb.collection('push_subscriptions').getFullList({
-        filter: `user="${pb.authStore.record?.id || ''}"`,
-      });
-      if (subs.length === 0) {
-        console.warn('No subscription found for user');
-      }
-      isSubscribed.value = false;
-      new Notification('SideQuestia Push', {
-        body: 'You have successfully deactivated push notifications!',
-        icon: '/favicon.ico'
-      });
-    } catch (error) {
-      console.error('Error deleting subscription. Please try again later.', error);
-    }
-    return
-  }
 
   const {vapid_public_key: vapidPublicKey} = await pb.send('/api/v1/vapid-public-key', {
     method: 'GET',
