@@ -28,7 +28,7 @@ onMounted(() => {
       router.push('/').then(() => drawer.value = true);
     }
   }, 1000);
-  pb.send('/vapid-public-key', {
+  pb.send('/api/v1/vapid-public-key', {
     method: 'GET',
   }).then((res) => {
     console.log("VAPID public key fetched successfully", res);
