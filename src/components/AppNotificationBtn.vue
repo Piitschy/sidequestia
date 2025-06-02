@@ -65,8 +65,10 @@ const subscribeToPush = async () => {
     })
   } catch (error) {
     console.error('Error saving subscription. Please try again later.', error)
-    alert('Error saving subscription. Please try again later.')
-    return
+    new Notification('SideQuestia Push', {
+      body: 'You already have push notifications activated or an error occurred.',
+      icon: '/favicon.ico'
+    })
   }
 }
 
