@@ -440,6 +440,7 @@ func SendPush(subscription PushSubscription, title, body, url string) error {
 	payload := map[string]string{
 		"title": title,
 		"body":  body,
+		"url":   url,
 	}
 	jsonPayload, _ := json.Marshal(payload)
 
