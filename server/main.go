@@ -21,7 +21,7 @@ func main() {
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)
-		se.Router.GET("/{path...}", apis.Static(os.DirFS("./pb_public"), false))
+		// se.Router.GET("/{path...}", apis.Static(os.DirFS("./pb_public"), false))
 		g := se.Router.Group("/api/v1")
 		g.Bind(apis.RequireAuth())
 		g.POST("/accept-quest", AcceptQuestHandler)
