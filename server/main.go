@@ -37,6 +37,42 @@ func main() {
 		return se.Next()
 	})
 
+	app.OnRecordAfterUpdateSuccess("quest_subscriptions").BindFunc(func(e *core.RecordEvent) error {
+		questId := e.Record.GetString("quest")
+		quest, err := e.App.FindRecordById("quests", questId)
+		if err != nil {
+			log.Printf("Failed to find quest with ID %s: %v", questId, err)
+			return e.Next()
+		}
+		creatorId := e.Record.GetString("creator")
+		if e.Record.GetString("status") == "done" {
+			// Notify the user who created the subscription that the quest is done
+			err = NotifyUserOnQuest(
+				e.App,
+				creatorId,
+				questId,
+				"Quest Completed",
+				fmt.Sprintf("Your quest '%s' has been completed.", quest.GetString("title")),
+			)
+			if err != nil {
+				log.Printf("Failed to notify user %s about quest completion: %v", creatorId, err)
+			}
+		} else if e.Record.GetString("proof") != "" {
+			// Notify the user who created the subscription that the proof is AcceptQuestHandler
+			err = NotifyUserOnQuest(
+				e.App,
+				creatorId,
+				questId,
+				"Proof Submitted",
+				fmt.Sprintf("A proof for your quest '%s' has been submitted.", quest.GetString("title")),
+			)
+			if err != nil {
+				log.Printf("Failed to notify user %s about proof submission: %v", creatorId, err)
+			}
+		}
+		return e.Next()
+	})
+
 	app.OnRecordAfterUpdateSuccess("quests").BindFunc(func(e *core.RecordEvent) error {
 		// Check if the quest is completed
 		if e.Record.GetString("status") != "completed" {
@@ -80,6 +116,21 @@ func main() {
 				log.Printf("Failed to save updated quest points for user %s: %v", user.Id, err)
 				continue
 			}
+			// Notify the user that they received quest points
+			err = NotifyUserOnQuest(
+				e.App,
+				user.Id,
+				e.Record.Id,
+				"Quest Completed",
+				fmt.Sprintf(
+					"You have completed the quest '%s' and received %d quest points.",
+					e.Record.GetString("title"),
+					questPoints,
+				),
+			)
+			if err != nil {
+				log.Printf("Failed to notify user %s about quest completion: %v", user.Id, err)
+			}
 		}
 		return e.Next()
 	})
@@ -87,41 +138,15 @@ func main() {
 	app.OnRecordAfterCreateSuccess("quests").BindFunc(func(e *core.RecordEvent) error {
 		partyId := e.Record.GetString("party")
 
-		pushSubs := []PushSubscription{}
-		err := e.App.DB().
-			NewQuery("SELECT ps.endpoint as endpoint, ps.auth as auth, ps.p256dh as p256dh FROM push_subscriptions ps LEFT JOIN party_users pu ON pu.user = ps.user WHERE pu.party = {:party}").
-			Bind(dbx.Params{
-				"party": partyId,
-			}).
-			All(&pushSubs)
-
-		if err != nil {
-			log.Printf("Failed to get push subscriptions for party %s: %v", partyId, err)
-			return e.Next()
-		}
-
-		fmt.Println(
-			"Found %d push subscriptions for party %s\n",
-			len(pushSubs),
-			partyId,
-			pushSubs,
+		err := NotifyPartyOnQuest(e.App, partyId, e.Record.Id, "New Quest Available",
+			fmt.Sprintf(
+				"A new quest '%s' is available in your party.",
+				e.Record.GetString("title"),
+			),
 		)
 
-		for _, sub := range pushSubs {
-			// Notification-Payload inkl. URL
-			err = SendPush(
-				sub,
-				"New Quest Available",
-				fmt.Sprintf(
-					"A new quest '%s' is available in your party.",
-					e.Record.GetString("title"),
-				),
-				"/quests/"+e.Record.Id,
-			)
-			if err != nil {
-				log.Printf("Failed to send push notification to %s: %v", sub.Endpoint, err)
-				continue
-			}
+		if err != nil {
+			log.Printf("%s", err)
 		}
 
 		return e.Next()
@@ -153,6 +178,66 @@ func main() {
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func NotifyPartyOnQuest(app core.App, partyId, questId, msgTitle, msgBody string) error {
+	pushSubs := []PushSubscription{}
+	err := app.DB().
+		NewQuery("SELECT ps.endpoint as endpoint, ps.auth as auth, ps.p256dh as p256dh FROM push_subscriptions ps LEFT JOIN party_users pu ON pu.user = ps.user WHERE pu.party = {:party}").
+		Bind(dbx.Params{
+			"party": partyId,
+		}).
+		All(&pushSubs)
+
+	if err != nil {
+		return fmt.Errorf("Failed to get push subscriptions for party %s: %v", partyId, err)
+	}
+
+	for _, sub := range pushSubs {
+		// Notification-Payload inkl. URL
+		err = SendPush(
+			sub,
+			msgTitle,
+			msgBody,
+			"/quests/"+questId,
+		)
+		if err != nil {
+			log.Printf("Failed to send push notification to %s: %v", sub.Endpoint, err)
+			continue
+		}
+	}
+
+	return nil
+}
+
+func NotifyUserOnQuest(app core.App, userId, questId, msgTitle, msgBody string) error {
+	pushSubs := []PushSubscription{}
+	err := app.DB().
+		NewQuery("SELECT endpoint, auth, p256dh FROM push_subscriptions WHERE user = {:user}").
+		Bind(dbx.Params{
+			"user": userId,
+		}).
+		All(&pushSubs)
+
+	if err != nil {
+		return fmt.Errorf("Failed to get push subscriptions for user %s: %v", userId, err)
+	}
+
+	for _, sub := range pushSubs {
+		// Notification-Payload inkl. URL
+		err = SendPush(
+			sub,
+			msgTitle,
+			msgBody,
+			"/quests/"+questId,
+		)
+		if err != nil {
+			log.Printf("Failed to send push notification to %s: %v", sub.Endpoint, err)
+			continue
+		}
+	}
+
+	return nil
 }
 
 type JoinPartyRequest struct {
@@ -266,6 +351,22 @@ func PayOutHandler(e *core.RequestEvent) error {
 	subscription.Set("paid_out", true)
 	if err := e.App.Save(subscription); err != nil {
 		return e.BadRequestError("Failed to update subscription status", err)
+	}
+
+	// Notify the user that the payout was successful
+	err = NotifyUserOnQuest(
+		e.App,
+		userId,
+		quest.Id,
+		"You received a payout",
+		fmt.Sprintf(
+			"You have received a payout of %d quest points for completing the quest '%s'.",
+			questPoints,
+			quest.GetString("title"),
+		),
+	)
+	if err != nil {
+		log.Printf("Failed to notify user %s about payout: %v", userId, err)
 	}
 
 	// Return a success response

@@ -12,7 +12,7 @@ const drawer = defineModel('drawer', {
   type: Boolean,
 });
 
-const { logout: pbLogout, refresh } = usePocketbase();
+const { logout: pbLogout, refresh, pb } = usePocketbase();
 
 const router = useRouter();
 async function logout() {
@@ -42,8 +42,8 @@ router.beforeEach((to, from, next) => {
   <div class="flex-1">
       <a class="btn btn-ghost text-xl">{{titlecase(drawer ? 'Parties' : $route.name?.toString() || 'SideQuestia')}}</a>
   </div>
-  <AppPWAInstallBtn />
-  <AppNotificationBtn />
+  <AppPWAInstallBtn v-if="pb.authStore.isValid" />
+  <AppNotificationBtn v-if="pb.authStore.isValid" />
   <AppThemeSelector />
   <div class="flex-none">
     <button class="btn btn-square btn-ghost" popovertarget="popover-1" style="anchor-name:--anchor-1">
