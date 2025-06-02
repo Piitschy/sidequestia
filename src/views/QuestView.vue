@@ -111,7 +111,13 @@ const tapCounter = ref(1);
 
 const rm = () => {
   if (tapCounter.value == 0) {
-    action('remove');
+    action('remove').then(() => {
+      tapCounter.value = 1;
+      notify('Quest removed successfully!', ToastType.success);
+      router.push({ name: 'quests' });
+    }).catch((error) => {
+      notify('Error removing quest: ' + error, ToastType.error);
+    });
     return;
   }
   tapCounter.value--;
