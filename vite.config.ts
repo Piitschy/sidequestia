@@ -15,67 +15,79 @@ export default defineConfig({
     vueDevTools(),
     tailwindcss(),
     VitePWA({
+      strategies: 'injectManifest',
+      injectManifest: {
+        injectionPoint: undefined,
+      },
       registerType: 'autoUpdate',
+      injectRegister: 'script',
+      filename: 'sw.js',
+      srcDir: 'src',
       manifest: {
-        "name": "SideQuestia",
-        "short_name": "SideQuestia",
-        "icons": [
+        name: 'SideQuestia',
+        short_name: 'SideQuestia',
+        icons: [
           {
-            "src": "/pwa-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "any"
+            src: '/pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any',
           },
           {
-            "src": "/pwa-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any"
+            src: '/pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any',
           },
           {
-            "src": "/pwa-maskable-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "maskable"
+            src: '/pwa-maskable-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable',
           },
           {
-            "src": "/pwa-maskable-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "maskable"
-          }
-        ],
-        "screenshots": [
-          {
-            "src": "/screenshots/quests.jpg",
-            "sizes": "2400x1080",
-            "type": "image/jpeg",
-            "label": "Quests Screen",
-          },
-          {
-            "src": "/screenshots/login.jpg",
-            "sizes": "2400x1080",
-            "type": "image/jpeg",
-            "label": "Login Screen",
+            src: '/pwa-maskable-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
           },
         ],
-        "start_url": "/",
-        "display": "standalone",
-        "background_color": "#efe8d7",
-        "theme_color": "#ece3ca",
-        "description": "SideQuestia is a playful mobile-first web application designed to bring real-life adventures to your friend group. Create and assign side quests to your friends, who can accept them and earn SideQuest Points (SQP) upon completion. It's a fun and engaging way to gamify everyday activities and strengthen social bonds."
-      }
-    })
+        screenshots: [
+          {
+            src: '/screenshots/quests.jpg',
+            sizes: '2400x1080',
+            type: 'image/jpeg',
+            label: 'Quests Screen',
+          },
+          {
+            src: '/screenshots/login.jpg',
+            sizes: '2400x1080',
+            type: 'image/jpeg',
+            label: 'Login Screen',
+          },
+        ],
+        start_url: '/',
+        display: 'standalone',
+        background_color: '#efe8d7',
+        theme_color: '#ece3ca',
+        description:
+          "SideQuestia is a playful mobile-first web application designed to bring real-life adventures to your friend group. Create and assign side quests to your friends, who can accept them and earn SideQuest Points (SQP) upon completion. It's a fun and engaging way to gamify everyday activities and strengthen social bonds.",
+      },
+      devOptions: {
+        enabled: true,
+        /* other options */
+      },
+    }),
   ],
   server: {
     port: 5173,
     watch: {
       ignored: ['**/server/**'],
-    }
+    },
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
 })

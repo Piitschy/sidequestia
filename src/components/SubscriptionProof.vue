@@ -80,7 +80,6 @@ async function del(){
     <Icon icon="ic:baseline-add-photo-alternate" width="24" class=""/>
     Upload Proof
   </button>
-  <UtilsDisableContextClick>
   <TransistionExpand>
     <div v-if="myProofUrl" class="relative flex overflow-hidden items-center rounded-md max-h-20 h-20"
         @contextmenu.prevent>
@@ -99,7 +98,6 @@ async function del(){
       </div>
     </div>
   </TransistionExpand>
-  </UtilsDisableContextClick>
   <Teleport to="body">
     <Transition name="fade">
       <div @contextmenu.prevent v-show="show" @click="show = false" @touchend="show = false" @mouseup="show = false" style="z-index: 500;" class="fixed top-0 left-0 w-full h-full backdrop-blur-sm backdrop-brightness-50 flex items-center justify-center">

@@ -1,11 +1,14 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strings"
 
+	"github.com/SherClockHolmes/webpush-go"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
@@ -18,12 +21,18 @@ func main() {
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		// serves static files from the provided public dir (if exists)
-		se.Router.GET("/{path...}", apis.Static(os.DirFS("./pb_public"), false))
+		// se.Router.GET("/{path...}", apis.Static(os.DirFS("./pb_public"), false))
 		g := se.Router.Group("/api/v1")
 		g.Bind(apis.RequireAuth())
 		g.POST("/accept-quest", AcceptQuestHandler)
 		g.POST("/payout", PayOutHandler)
 		g.POST("/join-party", JoinPartyHandler)
+		g.GET("/vapid-public-key", func(c *core.RequestEvent) error {
+			// Return the VAPID public key
+			return c.JSON(http.StatusOK, map[string]string{
+				"vapid_public_key": os.Getenv("VAPID_PUBLIC_KEY"),
+			})
+		})
 
 		return se.Next()
 	})
@@ -72,6 +81,49 @@ func main() {
 				continue
 			}
 		}
+		return e.Next()
+	})
+
+	app.OnRecordAfterCreateSuccess("quests").BindFunc(func(e *core.RecordEvent) error {
+		partyId := e.Record.GetString("party")
+
+		pushSubs := []PushSubscription{}
+		err := e.App.DB().
+			NewQuery("SELECT ps.endpoint as endpoint, ps.auth as auth, ps.p256dh as p256dh FROM push_subscriptions ps LEFT JOIN party_users pu ON pu.user = ps.user WHERE pu.party = {:party}").
+			Bind(dbx.Params{
+				"party": partyId,
+			}).
+			All(&pushSubs)
+
+		if err != nil {
+			log.Printf("Failed to get push subscriptions for party %s: %v", partyId, err)
+			return e.Next()
+		}
+
+		fmt.Println(
+			"Found %d push subscriptions for party %s\n",
+			len(pushSubs),
+			partyId,
+			pushSubs,
+		)
+
+		for _, sub := range pushSubs {
+			// Notification-Payload inkl. URL
+			err = SendPush(
+				sub,
+				"New Quest Available",
+				fmt.Sprintf(
+					"A new quest '%s' is available in your party.",
+					e.Record.GetString("title"),
+				),
+				"/quests/"+e.Record.Id,
+			)
+			if err != nil {
+				log.Printf("Failed to send push notification to %s: %v", sub.Endpoint, err)
+				continue
+			}
+		}
+
 		return e.Next()
 	})
 
@@ -274,4 +326,48 @@ func AcceptQuestHandler(e *core.RequestEvent) error {
 
 	// Return a success response
 	return e.JSON(http.StatusOK, map[string]any{"success": true, "subscription_id": sub.Id})
+}
+
+type PushSubscription struct {
+	Endpoint string `db:"endpoint"`
+	Auth     string `db:"auth"`
+	P256dh   string `db:"p256dh"`
+}
+
+func SendPush(subscription PushSubscription, title, body, url string) error {
+	// Notification-Payload inkl. URL
+	payload := map[string]string{
+		"title": title,
+		"body":  body,
+	}
+	jsonPayload, _ := json.Marshal(payload)
+
+	ss := fmt.Sprintf(
+		`{"endpoint":"%s","expirationTime":null,"keys":{"auth":"%s","p256dh":"%s"}}`,
+		subscription.Endpoint,
+		subscription.Auth,
+		subscription.P256dh,
+	)
+
+	fmt.Println("Push Subscription:", ss)
+
+	s := &webpush.Subscription{}
+	json.Unmarshal([]byte(ss), s)
+
+	// Push senden
+	resp, err := webpush.SendNotification(jsonPayload, s, &webpush.Options{
+		TTL:             30,
+		Subscriber:      "example@example.com",
+		VAPIDPublicKey:  os.Getenv("VAPID_PUBLIC_KEY"),
+		VAPIDPrivateKey: os.Getenv("VAPID_PRIVATE_KEY"),
+	})
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusGone || resp.StatusCode == http.StatusNotFound {
+		log.Println("Push-Abo nicht mehr gültig:", subscription.Endpoint)
+		// optional: aus DB löschen
+	}
+	return nil
 }

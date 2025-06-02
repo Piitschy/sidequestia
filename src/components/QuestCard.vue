@@ -47,8 +47,9 @@ const goToQuest = () => {
       </div>
     </div>
     <div v-if="iSubscribed" class="absolute top-0 left-1/2 -translate-y-[4px] -translate-x-1/2">
-      <div class="badge badge-outline badge-sm rounded-t-none border-t-0" :class="iAmCreator?'badge-base-content':'badge-success'">
-        <span v-if="iHaveDone">you have done this</span>
+      <div class="badge badge-outline badge-sm rounded-t-none border-t-0"
+        :class="iAmCreator?'badge-base-content': iHaveDone?'badge-success bg-success text-success-content':'badge-success'">
+        <span v-if="iHaveDone">you've done this</span>
         <span v-else-if="success">completed</span>
         <span v-else>accepted</span>
       </div>
