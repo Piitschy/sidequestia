@@ -28,7 +28,6 @@ services:
       - pocketbase
     environment:
       - API_URL=https://pb.${DOMAIN_NAME}
-      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
     networks:
       - traefik-public
     deploy:
@@ -47,7 +46,6 @@ services:
       - pocketbase
     environment:
       - API_URL=https://pb.${DOMAIN_NAME}
-      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
     networks:
       - traefik-public
     deploy:
