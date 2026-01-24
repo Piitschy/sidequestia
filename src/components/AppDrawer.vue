@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useTemplateRef, watch } from 'vue';
-import { useParties } from '@/composables/useParties';
+import { useParties, type Party } from '@/composables/useParties';
 import { onClickOutside } from '@vueuse/core';
 import { useQuestFilter } from '@/stores/questfilter';
+import { useRoute, useRouter } from 'vue-router';
 
 const drawer = defineModel('drawer', {
   default: false,
@@ -24,6 +25,15 @@ onClickOutside(drawerRef, () => {
 });
 
 const {parties, currPartyId} = useParties();
+
+const router = useRouter()
+const route = useRoute()
+const setParty = async (partyId:Party['id']) => {
+  currPartyId.value = partyId;
+  if (route.name != 'quests') {
+    await router.push({name: 'quests'})
+  }
+}
 </script>
 
 <template>
@@ -36,7 +46,7 @@ const {parties, currPartyId} = useParties();
       <ul ref="drawer-side" class="menu bg-base-300 text-base-content min-h-full w-80 px-4 py-[76px]">
         <!-- Sidebar content here -->
         <li v-for="party in parties" :key="party.id" >
-          <div class="text-xl mb-1 px-2 w-full" :class="{'bg-neutral text-neutral-content font-bold':currPartyId == party.id}" @click="currPartyId = party.id">
+          <div class="text-xl mb-1 px-2 w-full" :class="{'bg-neutral text-neutral-content font-bold':currPartyId == party.id}" @click="setParty(party.id)">
           {{ party.name }}
         </div>
 

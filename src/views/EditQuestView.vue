@@ -17,6 +17,8 @@ const { update, getQuest } = useQuests();
 const router = useRouter();
 const { notify } = useToasterStore();
 
+const loading = ref<boolean>()
+
 const submit = async () => {
   if (!pb.authStore.isValid) {
     alert('You must be logged in to create a quest');
@@ -33,6 +35,7 @@ const submit = async () => {
   if (!quest.value.seats) {
     quest.value.seats = 0;
   }
+  loading.value = true
   await update(id, quest.value).then((q) => {
     notify('Quest updated successfully!', ToastType.success);
     router.push({ name: 'quest', params: { questId: q.id } });
@@ -40,7 +43,7 @@ const submit = async () => {
     console.error(err);
     notify('Error updating quest', ToastType.error);
     return false;
-  });
+  }).finally(() => loading.value = false);
 }
 
 onMounted(async () => {
@@ -60,6 +63,7 @@ onMounted(async () => {
     v-model:seats="quest.seats"
     v-model:proof_needed="quest.proof_needed"
     submitText="Update Quest"
+    :disabled="loading"
     @submit="submit"
   ></QuestEditor>
 </template>

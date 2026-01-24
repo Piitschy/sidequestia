@@ -4,7 +4,7 @@ import { useParties } from '@/composables/useParties';
 import { usePocketbase } from '@/composables/usePocketbase';
 import { useQuests, type Quest } from '@/composables/useQuests';
 import { ToastType, useToasterStore } from '@/stores/toaster';
-import { onMounted, reactive } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 
@@ -18,6 +18,8 @@ const newQuest = reactive<Partial<Quest>>(
   }
 )
 
+const loading = ref<boolean>()
+
 const { pb } = usePocketbase();
 const { create } = useQuests();
 const router = useRouter();
@@ -28,6 +30,7 @@ const submit = async () => {
     alert('Please fill in all fields');
     return;
   }
+  loading.value = true
   await create({...newQuest, creator: pb.authStore.record?.id, status: 'active'}).then((q) => {
     notify('Quest created successfully!', ToastType.success);
     router.push({ name: 'quest', params: { questId: q.id } });
@@ -35,7 +38,7 @@ const submit = async () => {
     console.error(err);
     notify('Error creating quest', ToastType.error);
     return false;
-  });
+  }).finally(() => {loading.value = false});
 }
 
 const {currParty} = useParties();
@@ -55,6 +58,7 @@ onMounted(() => {
     v-model:seats="newQuest.seats"
     v-model:proof_needed="newQuest.proof_needed"
     submitText="Create Quest"
+    :disabled="loading"
     @submit="submit"
   ></QuestEditor>
 </template>

@@ -1,6 +1,6 @@
 module github.com/Piitschy/sidequestia/server
 
-go 1.24.2
+go 1.25
 
 require (
 	github.com/SherClockHolmes/webpush-go v1.4.0

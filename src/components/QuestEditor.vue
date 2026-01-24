@@ -20,7 +20,8 @@ watchEffect(() => {
 })
 
 defineProps<{
-  submitText?: string
+  submitText?: string,
+  disabled?: boolean
 }>()
 defineEmits(['submit'])
 
@@ -42,14 +43,15 @@ const raw = ref(true)
 
 <template>
   <div class="flex flex-col max-w-xl mx-auto justify-center items-center gap-3">
-    <input v-model="title" type="text" placeholder="Title" class="input w-full" />
+    <input v-model="title" type="text" placeholder="Title" class="input w-full" :disabled />
     <button class="btn btn-outline w-full" @click="raw = !raw">
       switch to<span v-if="raw">wysiwyg-editor</span><span v-else>raw html</span>
     </button>
-    <QuillEditor v-if="!raw" v-model:content="description" content-type="html" class="textarea w-full overflow-hidden" theme="snow" :toolbar="toolbarOptions"></QuillEditor>
-    <textarea v-if="raw" ref="textarea" v-model="description" class="textarea w-full overflow-hidden" placeholder="Description"></textarea>
+    <QuillEditor v-if="!raw" v-model:content="description" :disabled content-type="html" class="textarea w-full overflow-hidden" theme="snow" :toolbar="toolbarOptions"></QuillEditor>
+    <textarea v-if="raw" ref="textarea" v-model="description" :disabled class="textarea w-full overflow-hidden" placeholder="Description"></textarea>
     <input
       v-model="questpoints"
+      :disabled
       type="number"
       class="input validator w-full"
       required
@@ -59,6 +61,7 @@ const raw = ref(true)
     />
     <input
       v-model="seats"
+      :disabled
       type="number"
       class="input validator w-full"
       required
@@ -70,7 +73,7 @@ const raw = ref(true)
       <input type="checkbox" v-model="proofNeeded" class="toggle" />
       <span class="label-text text-base-content" :class="proofNeeded?'opacity-100':'opacity-65'">Photo upload as proof needed</span>
     </label>
-    <button v-if="submitText" class="btn btn-success w-full" @click="$emit('submit')">
+    <button v-if="submitText" :disabled class="btn btn-success w-full" @click="$emit('submit')">
       {{ $props.submitText }}
     </button>
   </div>
