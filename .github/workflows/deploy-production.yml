@@ -1,35 +1,37 @@
-name: Docker Image CI Staging
+name: Docker Image CI Production
 
 on:
   push:
-    branches: [ "prod" ]
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    
-    - name: Set TAG
-      run: |
-        IMG=ghcr.io/${GITHUB_REPOSITORY@L}
-        echo "IMG=$IMG" >> $GITHUB_ENV
-        
-    - uses: actions/checkout@v4
-            
-    - name: Log in to ghcr.io
-      run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-      
-    - name: Build the pocketbase Docker image
-      run: docker build -t ${{ env.IMG }}/pocketbase:latest ./server
+      - name: Set TAG
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          IMG=ghcr.io/${GITHUB_REPOSITORY@L}
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "IMG=$IMG" >> $GITHUB_ENV
 
-    - name: Push pocketbase image to GHCR
-      run: docker push ${{ env.IMG }}/pocketbase:latest
+      - uses: actions/checkout@v4
 
-    - name: Build the vue Docker image
-      run: docker build -t ${{ env.IMG }}/vue:latest .
+      - name: Log in to ghcr.io
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-    - name: Push vue image to GHCR
-      run: docker push ${{ env.IMG }}/vue:latest
+      - name: Build the pocketbase Docker image
+        run: docker build -t ${{ env.IMG }}/pocketbase:${{ env.TAG }} -t ${{ env.IMG }}/pocketbase:latest ./server
 
-    - name: Pull Webhook
-      run: curl -X POST -k ${{vars.WEBHOOK}}
+      - name: Push pocketbase image to GHCR
+        run: docker push ${{ env.IMG }}/pocketbase --all-tags
+
+      - name: Build the vue Docker image
+        run: docker build -t ${{ env.IMG }}/vue:${{ env.TAG }} -t ${{ env.IMG }}/vue:latest .
+
+      - name: Push vue image to GHCR
+        run: docker push ${{ env.IMG }}/vue --all-tags
+
+      - name: Pull Webhook
+        run: curl -X POST -k ${{vars.WEBHOOK}}?PROD_TAG=${{ env.TAG }}
