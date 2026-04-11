@@ -1,8 +1,8 @@
-import { onMounted, ref } from "vue"
-import { usePocketbase } from "./usePocketbase"
-import { ToastType, useToasterStore } from "@/stores/toaster"
-import { usePartyStore } from "@/stores/party"
-
+import { onMounted, ref } from 'vue'
+import { usePocketbase } from './usePocketbase'
+import { ToastType, useToasterStore } from '@/stores/toaster'
+import { usePartyStore } from '@/stores/party'
+import { compressImageFile } from '@/utils/imageCompression'
 
 export type Quest = {
   id: string
@@ -38,7 +38,7 @@ export const useQuests = () => {
   const { pb } = usePocketbase()
   const questsCollection = pb.collection<Quest>('quests')
   const questSubscriptionsCollection = pb.collection<QuestSubscription>('quest_subscriptions')
-  const {notify} = useToasterStore()
+  const { notify } = useToasterStore()
 
   async function pull() {
     quests.value = await questsCollection.getFullList({
@@ -69,7 +69,9 @@ export const useQuests = () => {
 
   async function getMySubscriptionOnQuest(questId: Quest['id']) {
     try {
-      const sub = await questSubscriptionsCollection.getFirstListItem(`quest="${questId}" && user="${pb.authStore.record?.id}"`)
+      const sub = await questSubscriptionsCollection.getFirstListItem(
+        `quest="${questId}" && user="${pb.authStore.record?.id}"`,
+      )
       if (!sub) return null
       return sub
     } catch (err) {
@@ -80,7 +82,7 @@ export const useQuests = () => {
 
   async function create(quest: Partial<Quest>) {
     const partyStore = usePartyStore()
-    const newQuest = await questsCollection.create({...quest, party: partyStore.currPartyId})
+    const newQuest = await questsCollection.create({ ...quest, party: partyStore.currPartyId })
     quests.value.push(newQuest)
     return newQuest
   }
@@ -115,7 +117,11 @@ export const useQuests = () => {
   }
 
   onMounted(async () => {
-    if (quests.value.length === 0 || !lastUpdated.value || (new Date().getTime() - lastUpdated.value.getTime()) > 10_000) {
+    if (
+      quests.value.length === 0 ||
+      !lastUpdated.value ||
+      new Date().getTime() - lastUpdated.value.getTime() > 10_000
+    ) {
       pull()
     }
     console.log('Quests mounted')
@@ -127,12 +133,14 @@ export const useQuests = () => {
       body: {
         quest_id: id,
       },
-    }).then(() => {
-      console.log('Quest accepted')
-      pull()
-    }).catch((err) => {
-      console.error(err)
     })
+      .then(() => {
+        console.log('Quest accepted')
+        pull()
+      })
+      .catch((err) => {
+        console.error(err)
+      })
   }
 
   async function payout(id: QuestSubscription['id']) {
@@ -141,18 +149,22 @@ export const useQuests = () => {
       body: {
         subscription_id: id,
       },
-    }).then(() => {
-      console.log('Payout successful')
-      notify('Payout successful', ToastType.success)
-      pull()
-    }).catch((err) => {
-      console.error(err)
-      notify('Payout failed', ToastType.error)
     })
+      .then(() => {
+        console.log('Payout successful')
+        notify('Payout successful', ToastType.success)
+        pull()
+      })
+      .catch((err) => {
+        console.error(err)
+        notify('Payout failed', ToastType.error)
+      })
   }
 
   async function quit(id: Quest['id']) {
-    const sub = await questSubscriptionsCollection.getFirstListItem(`quest="${id}" && user="${pb.authStore.record?.id}"`)
+    const sub = await questSubscriptionsCollection.getFirstListItem(
+      `quest="${id}" && user="${pb.authStore.record?.id}"`,
+    )
     if (sub) {
       await questSubscriptionsCollection.delete(sub.id)
       pull()
@@ -160,7 +172,9 @@ export const useQuests = () => {
   }
 
   async function done(id: Quest['id']) {
-    const sub = await questSubscriptionsCollection.getFirstListItem(`quest="${id}" && user="${pb.authStore.record?.id}"`)
+    const sub = await questSubscriptionsCollection.getFirstListItem(
+      `quest="${id}" && user="${pb.authStore.record?.id}"`,
+    )
     if (sub) {
       await questSubscriptionsCollection.update(sub.id, { status: 'done' })
       pull()
@@ -168,10 +182,41 @@ export const useQuests = () => {
   }
 
   async function uploadProof(subId: QuestSubscription['id'], proof: File) {
+    if (!proof) {
+      const error = new Error('No proof file selected')
+      notify(error.message, ToastType.error)
+      throw error
+    }
+
+    let preparedProof = proof
+    if (proof.type.startsWith('image/')) {
+      try {
+        preparedProof = await compressImageFile(proof)
+      } catch (err) {
+        console.error(err)
+        notify('Bild konnte nicht komprimiert werden', ToastType.error)
+        throw err instanceof Error ? err : new Error('Image compression failed')
+      }
+    }
+
     const formData = new FormData()
-    formData.append('proof', proof)
-    await questSubscriptionsCollection.update(subId, formData)
-    await pull()
+    formData.append('proof', preparedProof)
+
+    try {
+      await questSubscriptionsCollection.update(subId, formData)
+      await pull()
+    } catch (err) {
+      console.error(err)
+      const responseMessage =
+        typeof err === 'object' && err !== null && 'response' in err
+          ? (err as { response?: { message?: string } }).response?.message
+          : undefined
+      const fallbackMessage = err instanceof Error ? err.message : undefined
+      const defaultMessage = 'Proof upload failed'
+      const message = responseMessage || fallbackMessage
+      notify(message ? `${defaultMessage}: ${message}` : defaultMessage, ToastType.error)
+      throw err
+    }
   }
 
   async function deleteProof(subId: QuestSubscription['id']) {
